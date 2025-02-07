@@ -8,11 +8,11 @@ import { set } from 'date-fns'
 type Props = {
     title: string
     // setForm: ?
-    interests: datainterst[]
+    interests?: datainterst[]
     setInterests: React.Dispatch<React.SetStateAction<datainterst[]>>
 }
 
-const InterestsCard = ({ title, setInterests, interests }: Props) => {
+const InterestsCard = ({ title, setInterests }: Props) => {
 
     const [active, setActive] = useState(false);
 
@@ -31,7 +31,7 @@ const InterestsCard = ({ title, setInterests, interests }: Props) => {
                     setActive(!active);
                     handleInterests();
                 }}
-                className={`hover:cursor-pointer ${active ? 'bg-teal-300' : ''} border-2 border-teal-300  rounded-lg gap-x-2 w-fit px-3 py-2 flex items-center justify-between`}>
+                className={`hover:cursor-pointer ${active ? 'bg-teal-900 text-white border-white' : ''} border-2 border-teal-300  rounded-lg gap-x-2 w-fit px-3 py-2 flex items-center justify-between`}>
                 <p>{title}</p>
                 <Plus size={20} />
             </div>
