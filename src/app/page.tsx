@@ -1,5 +1,6 @@
 import React from 'react'
 import { metadata } from './layout'
+import Navbar from '@/components/globals/navbar'
 
 metadata.title = "Smart-Study/home"
 
@@ -7,7 +8,9 @@ type Props = {}
 
 const Page = (props: Props) => {
   return (
-    <div>This is home page</div>
+    <div>
+      <Navbar />
+    </div>
   )
 }
 

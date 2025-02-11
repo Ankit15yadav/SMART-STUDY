@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { Dancing_Script } from "next/font/google"
 import { Input } from '@/components/ui/input'
-import { data } from "../../../../public/assets/interests/data"
+import { data } from "../../../../../../public/assets/interests/data"
 import InterestsCard from '@/components/interests'
 import { Button } from '@/components/ui/button'
 import { ArrowRight, Loader2 } from 'lucide-react'
@@ -52,7 +52,7 @@ const Interests = () => {
     return (
         <div className='w-full bg-gradient-to-b from-cyan-300 to-emerald-100'>
             <div className='w-11/12 mx-auto  min-h-screen'>
-                <div className='flex items-center justify-center  pt-2'>
+                {/* <div className='flex items-center justify-center  pt-2'>
                     <Image
                         src={"/assets/images/logo.png"}
                         alt='logo'
@@ -60,7 +60,7 @@ const Interests = () => {
                         height={150}
                         className='flex it'
                     />
-                </div>
+                </div> */}
 
                 <div className='flex flex-col justify-center items-center py-4'>
                     <h1 className={`text-4xl ${dancingScript.className}`}>What are you interested in?</h1>
