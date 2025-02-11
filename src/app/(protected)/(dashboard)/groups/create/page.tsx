@@ -1,11 +1,14 @@
+import CreateGroup from '@/components/create-group'
 import React from 'react'
 
 type Props = {}
 
-const CreateGroup = (props: Props) => {
+const CreateGroupCard = (props: Props) => {
     return (
-        <div>CreateGroup</div>
+        <div className='w-full'>
+            <CreateGroup />
+        </div>
     )
 }
 
-export default CreateGroup
+export default CreateGroupCard

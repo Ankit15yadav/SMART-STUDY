@@ -19,16 +19,13 @@ const Dashboard = [
     },
     {
         label: "All Groups",
-        // href: "/groups",
-        href: "/groups/4",
+        href: "/groups/my-groups",
 
         icon: <Users size={20} />
     },
     {
         label: "Create Group",
-        // href: "/groups/create",
-        href: "/groups/1",
-
+        href: "/groups/create",
         icon: <PlusCircle size={20} />
     },
     {

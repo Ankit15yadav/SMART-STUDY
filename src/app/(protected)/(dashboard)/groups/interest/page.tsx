@@ -50,7 +50,7 @@ const Interests = () => {
     }
 
     return (
-        <div className='w-full bg-gradient-to-b from-cyan-300 to-emerald-100'>
+        <div className='w-full '>
             <div className='w-11/12 mx-auto  min-h-screen'>
                 {/* <div className='flex items-center justify-center  pt-2'>
                     <Image

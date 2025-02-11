@@ -1,5 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// prisma/schema.prisma
 
 generator client {
     provider = "prisma-client-js"
@@ -20,15 +19,57 @@ model Post {
 }
 
 model User {
+    id           String   @id @default(uuid())
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @updatedAt
+    imageUrl     String?
+    firstName    String?
+    lastName     String?
+    emailAddress String   @unique
+    maxGroups    Int      @default(0)
+    interests    String[]
+
+    groupMembers GroupMember[]
+
+    createdGroups Group[] @relation("GroupCreator")
+}
+
+model Group {
     id        String   @id @default(uuid())
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    imageUrl  String?
-    firstName String?
-    lastName  String?
+    name        String
+    description String
+    imageUrl    String?
+    maxMembers  Int
+    isPublic    Boolean
+    category    String
 
-    emailAddress String   @unique
-    maxGroups    Int      @default(0)
-    interests    String[]
+    tags GroupTag[]
+
+    members GroupMember[]
+
+    createdBy User   @relation("GroupCreator", fields: [userId], references: [id])
+    userId    String
+}
+
+model GroupTag {
+    id      String @id @default(uuid())
+    name    String
+    group   Group  @relation(fields: [groupId], references: [id])
+    groupId String
+
+    @@unique([name, groupId])
+}
+
+model GroupMember {
+    id      String @id @default(uuid())
+    role    String
+    group   Group  @relation(fields: [groupId], references: [id])
+    groupId String
+    user    User   @relation(fields: [userId], references: [id])
+    userId  String
+
+    @@unique([groupId, userId])
 }
