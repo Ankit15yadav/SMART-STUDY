@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { Tag } from "lucide-react";
+import { projectOnExit } from "next/dist/build/swc/generated-native";
 
 
 export const GroupRouter = createTRPCRouter({
@@ -10,7 +11,6 @@ export const GroupRouter = createTRPCRouter({
             description: z.string().min(1),
             Maxmembers: z.number().min(1),
             imageUrl: z.string().optional(),
-            category: z.string().min(1),
             isPublic: z.boolean(),
             Tag: z.array(z.string())
         }))
@@ -34,14 +34,10 @@ export const GroupRouter = createTRPCRouter({
                         description: input.description,
                         maxMembers: input.Maxmembers,
                         imageUrl: input.imageUrl,
-                        category: input.category,
+                        category: "",
                         isPublic: input.isPublic,
 
-                        tags: {
-                            create: input.Tag.map((tag) => ({
-                                name: tag,
-                            })),
-                        },
+                        tags: input.Tag,
                         members: {
                             create: {
                                 userId: ctx.user.userId,
@@ -70,9 +66,75 @@ export const GroupRouter = createTRPCRouter({
         }
         const groups = await ctx.db.group.findMany({
             where: {
-                createdBy: { id: ctx.user.userId! }
+                createdBy: { id: ctx.user.userId! },
+            },
+            select: {
+                tags: true,
+                name: true,
+                id: true,
+                description: true,
+                imageUrl: true,
+                isPublic: true,
+                maxMembers: true,
+                category: true,
+                members: true,
             }
         })
         return groups
+    }),
+
+    getUserInterest: protectedProcedure.query(async ({ ctx }) => {
+
+        if (!ctx.user.userId) throw new Error('User not authenticated')
+
+        const user = await ctx.db.user.findUnique({
+            where: {
+                id: ctx.user.userId,
+            }
+        })
+
+        if (!user) throw new Error('User not found')
+
+        try {
+
+            const interests = await ctx.db.user.findUnique({
+                where: {
+                    id: ctx.user.userId,
+                },
+                select: {
+                    interests: true,
+                },
+            })
+
+            return interests?.interests.at(-1);
+
+        } catch (error) {
+            console.log("Error while getting interests");
+
+        }
+    }),
+
+    GetMatchingGroups: protectedProcedure.input(z.object({
+        userInterests: z.array(z.string())
+    })).query(async ({ ctx, input }) => {
+
+        if (!ctx.user.userId) throw new Error('User not authenticated')
+
+        try {
+
+            const matchingGroup = await ctx.db.group.findMany({
+                where: {
+                    tags: {
+                        hasSome: input.userInterests
+                    },
+                }
+            })
+
+            return matchingGroup
+
+        } catch (error) {
+            console.log("Error while getting matching groups");
+        }
+
     })
 })

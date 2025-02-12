@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, ChangeEvent, KeyboardEvent, FormEvent } from "react";
+import React, { useState, ChangeEvent, FormEvent, DragEvent } from "react";
 import {
     Card,
     CardContent,
@@ -15,17 +15,24 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { X, Upload, Loader } from "lucide-react";
+import { X, Loader, Upload } from "lucide-react";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
-import { number } from "zod";
 import useRefetch from "@/hooks/use-refetch";
+import {
+    Command,
+    CommandInput,
+    CommandList,
+    CommandItem,
+    CommandEmpty,
+} from "@/components/ui/command";
+import Image from "next/image";
+import { data as InterestList } from "public/assets/interests/data";
 
 interface FormData {
     groupName: string;
     groupDescription: string;
-    groupCategory: string;
-    maxMembers: number,
+    maxMembers: number;
     isPublic: boolean;
     tags: string[];
     image: File | null;
@@ -35,283 +42,308 @@ interface FormData {
 const initialFormData: FormData = {
     groupName: "",
     groupDescription: "",
-    groupCategory: "",
-    maxMembers: 0,
+    maxMembers: 2, // starting at the minimum allowed value
     isPublic: true,
     tags: [],
     image: null,
     preview: null,
 };
 
+
 const CreateGroup: React.FC = () => {
     const [data, setData] = useState<FormData>(initialFormData);
-    const [currentTag, setCurrentTag] = useState<string>("");
-    const createGroup = api.Groups.createGroup.useMutation();
+    const [searchQuery, setSearchQuery] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const createGroup = api.Groups.createGroup.useMutation();
     const refetch = useRefetch();
+
+    const filteredInterests = InterestList.filter((interest) =>
+        interest.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     const handleInputChange = (
         e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
     ) => {
         const { id, value } = e.target;
-        setData((prevData) => ({
-            ...prevData,
-            [id]: id === "maxMembers" ? (value ? parseInt(value) : "") : value,
+        setData((prev) => ({
+            ...prev,
+            [id]:
+                id === "maxMembers"
+                    ? value === ""
+                        ? 2
+                        : parseInt(value)
+                    : value,
         }));
     };
 
     const handleSwitchChange = (checked: boolean) => {
-        setData((prevData) => ({
-            ...prevData,
-            isPublic: checked,
-        }));
+        setData((prev) => ({ ...prev, isPublic: checked }));
     };
 
     const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            setData((prevData) => ({
-                ...prevData,
-                image: file,
-                preview: URL.createObjectURL(file),
-            }));
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            const preview = URL.createObjectURL(file);
+            setData((prev) => ({ ...prev, image: file, preview }));
         }
     };
 
-    const removeImage = () => {
-        setData((prevData) => ({
-            ...prevData,
-            image: null,
-            preview: null,
-        }));
+    const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
     };
 
-    const handleAddTag = (e: KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === "Enter" && currentTag.trim() !== "") {
-            e.preventDefault();
-            setData((prevData) => ({
-                ...prevData,
-                tags: [...prevData.tags, currentTag.trim()],
-            }));
-            setCurrentTag("");
+    const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+            const file = e.dataTransfer.files[0];
+            const preview = URL.createObjectURL(file);
+            setData((prev) => ({ ...prev, image: file, preview }));
+        }
+    };
+
+    const handleRemoveImage = () => {
+        setData((prev) => ({ ...prev, image: null, preview: null }));
+    };
+
+    const handleAddTag = (tag: string) => {
+        if (!data.tags.includes(tag) && data.tags.length < 5) {
+            setData((prev) => ({ ...prev, tags: [...prev.tags, tag] }));
+            setSearchQuery("");
         }
     };
 
     const handleRemoveTag = (tagToRemove: string) => {
-        setData((prevData) => ({
-            ...prevData,
-            tags: prevData.tags.filter((tag) => tag !== tagToRemove),
+        setData((prev) => ({
+            ...prev,
+            tags: prev.tags.filter((tag) => tag !== tagToRemove),
         }));
     };
 
-    const handleSubmit = (e: FormEvent) => {
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
+
+        if (
+            data.groupName.trim() === "" ||
+            data.groupDescription.trim() === ""
+        ) {
+            toast.error("Please fill out all required fields.");
+            return;
+        }
+        if (data.maxMembers < 2 || data.maxMembers > 20) {
+            toast.error("Maximum members must be between 2 and 20.");
+            return;
+        }
 
         setIsLoading(true);
         try {
-
-            const inputData = {
+            await createGroup.mutateAsync({
                 name: data.groupName,
                 description: data.groupDescription,
                 Maxmembers: data.maxMembers,
-                imageUrl: data.preview || undefined,
-                category: data.groupCategory,
                 isPublic: data.isPublic,
                 Tag: data.tags,
-            };
-            createGroup.mutate(inputData, {
-                onSuccess: () => {
-                    setIsLoading(false);
-                    setData(initialFormData);
-                    refetch()
-                    toast.success("Group created successfully");
-                },
-                onError: (error) => {
-                    setIsLoading(false);
-                    toast.error("Failed to create group",);
-                },
-            })
-
+                imageUrl: data.preview || undefined,
+            });
+            toast.success("Group created successfully!");
+            refetch();
+            setData(initialFormData);
         } catch (error) {
-            console.error("Failed to create group", error);
+            console.error("Error while creating group:", error);
+            toast.error("Failed to create group. Please try again.");
+        } finally {
             setIsLoading(false);
-            toast.error("Failed to create group , please try again");
         }
     };
 
     return (
         <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-            <Card className="max-w-7xl mx-auto shadow-lg">
+            <Card className="max-w-6xl mx-auto shadow-lg">
                 <CardHeader className="space-y-1">
-                    <CardTitle className="text-3xl bg-gradient-to-tl from-red-200 to-red-700 bg-clip-text text-transparent flex justify-center font-bold">
-                        Create  Group
+                    <CardTitle className="text-3xl bg-gradient-to-tl from-red-200 to-red-700 bg-clip-text text-transparent text-center font-bold">
+                        Create New Group
                     </CardTitle>
-                    <CardDescription className="text-gray-500 flex justify-center">
-                        Connect with like-minded individuals, define your purpose, and
-                        start collaborating!
+                    <CardDescription className="text-gray-500 text-center">
+                        Build your community with shared interests and goals
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-6">
                         {/* Group Name */}
                         <div className="space-y-2">
-                            <Label htmlFor="groupName" className="text-gray-700">
-                                Group Name
-                            </Label>
+                            <Label htmlFor="groupName">Group Name</Label>
                             <Input
                                 id="groupName"
-                                placeholder="Enter name of your group"
-                                required
-                                className="w-full"
+                                placeholder="Awesome Community"
                                 value={data.groupName}
                                 onChange={handleInputChange}
+                                maxLength={50}
                             />
+                            <span className="text-sm text-gray-500">
+                                {50 - data.groupName.length} characters remaining
+                            </span>
                         </div>
 
-                        {/* Group Description */}
+                        {/* Cover Image Upload with Improved UI */}
                         <div className="space-y-2">
-                            <Label htmlFor="groupDescription" className="text-gray-700">
-                                Group Description
-                            </Label>
-                            <Textarea
-                                id="groupDescription"
-                                placeholder="Describe the purpose and goals of your group"
-                                required
-                                className="w-full min-h-[100px]"
-                                value={data.groupDescription}
-                                onChange={handleInputChange}
-                            />
-                        </div>
-
-                        {/* Image Upload */}
-                        <div className="space-y-2">
-                            <Label className="text-gray-700">
-                                Cover Image (Optional)
-                            </Label>
-                            <div className="border border-dashed border-gray-300 p-4 rounded-lg text-center cursor-pointer">
+                            <Label htmlFor="coverImage">Cover Image</Label>
+                            <div
+                                onDragOver={handleDragOver}
+                                onDrop={handleDrop}
+                                className="relative border-2 border-dashed border-gray-300 rounded-md p-6 cursor-pointer hover:border-blue-500 transition-colors"
+                            >
+                                <input
+                                    id="coverImage"
+                                    type="file"
+                                    accept="image/*"
+                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                    onChange={handleImageChange}
+                                />
                                 {data.preview ? (
-                                    <div className="relative w-full">
-                                        <img
+                                    <div className="relative">
+                                        <Image
                                             src={data.preview}
-                                            alt="Preview"
-                                            className="mx-auto max-h-40 rounded-lg shadow-md"
+                                            alt="Cover Preview"
+                                            width={100}
+                                            height={10}
+                                            className="w-full h-fit object-cover rounded-md"
                                         />
                                         <button
                                             type="button"
-                                            onClick={removeImage}
-                                            className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full"
+                                            onClick={handleRemoveImage}
+                                            className="absolute top-2 right-2 bg-red-600 rounded-full text-white p-1"
                                         >
                                             <X size={16} />
                                         </button>
                                     </div>
                                 ) : (
-                                    <label className="flex flex-col items-center cursor-pointer">
-                                        <Upload className="text-gray-500 mb-2" />
-                                        <span className="text-gray-500 text-sm">
-                                            Click to upload or drag and drop
-                                        </span>
-                                        <Input
-                                            id="coverImage"
-                                            type="file"
-                                            accept="image/*"
-                                            className="hidden"
-                                            onChange={handleImageChange}
-                                        />
-                                    </label>
+                                    <div className="flex flex-col items-center justify-center">
+                                        <Upload size={32} className="text-gray-400" />
+                                        <p className="mt-2 text-gray-500">
+                                            Drag & drop an image here or click to select one
+                                        </p>
+                                    </div>
                                 )}
                             </div>
                         </div>
 
-                        {/* Group Category */}
+                        {/* Group Description */}
                         <div className="space-y-2">
-                            <Label htmlFor="groupCategory" className="text-gray-700">
-                                Group Category
-                            </Label>
-                            <Input
-                                id="groupCategory"
-                                placeholder="Enter your group's category"
-                                required
-                                className="w-full"
-                                value={data.groupCategory}
+                            <Label htmlFor="groupDescription">Description</Label>
+                            <Textarea
+                                id="groupDescription"
+                                placeholder="Describe your group's purpose and goals..."
+                                value={data.groupDescription}
                                 onChange={handleInputChange}
+                                className="min-h-[120px]"
+                                maxLength={300}
                             />
+                            <span className="text-sm text-gray-500">
+                                {300 - data.groupDescription.length} characters remaining
+                            </span>
                         </div>
 
-                        {/* Tags */}
+                        {/* Tags Select with Search */}
                         <div className="space-y-2">
-                            <Label htmlFor="tags" className="text-gray-700">
-                                Tags
-                            </Label>
+                            <Label>Tags (Max 5)</Label>
                             <div className="flex flex-wrap gap-2 mb-2">
                                 {data.tags.map((tag) => (
-                                    <Badge key={tag} variant="secondary" className="text-sm">
+                                    <Badge
+                                        key={tag}
+                                        variant="secondary"
+                                        className="text-sm pr-1 flex items-center"
+                                    >
                                         {tag}
                                         <button
                                             type="button"
                                             onClick={() => handleRemoveTag(tag)}
-                                            className="ml-2 text-gray-500 hover:text-gray-700"
+                                            className="ml-2 hover:text-red-500"
                                         >
                                             <X size={14} />
                                         </button>
                                     </Badge>
                                 ))}
                             </div>
-                            <Input
-                                id="tags"
-                                placeholder="Add tags and press Enter"
-                                value={currentTag}
-                                onChange={(e) => setCurrentTag(e.target.value)}
-                                onKeyDown={handleAddTag}
-                                className="w-full"
-                            />
+
+                            <Command className="rounded-lg border">
+                                <CommandInput
+                                    placeholder="Search interests..."
+                                    value={searchQuery}
+                                    onValueChange={setSearchQuery}
+                                />
+                                <CommandList>
+                                    {filteredInterests.length > 0 ? (
+                                        filteredInterests.map((interest) => (
+                                            <CommandItem
+                                                key={interest.id}
+                                                value={interest.title}
+                                                onSelect={() => handleAddTag(interest.title)}
+                                                className="cursor-pointer hover:bg-gray-50"
+                                            >
+                                                {interest.title}
+                                            </CommandItem>
+                                        ))
+                                    ) : (
+                                        <CommandEmpty>No matching interests found</CommandEmpty>
+                                    )}
+                                </CommandList>
+                            </Command>
+                            <p className="text-sm text-gray-500 mt-1">
+                                Select relevant interests to help others find your group
+                            </p>
                         </div>
 
-                        {/* Public or Private */}
-                        <div className="flex items-center space-x-2">
-                            <Switch
-                                id="isPublic"
-                                checked={data.isPublic}
-                                onCheckedChange={handleSwitchChange}
-                            />
-                            <Label htmlFor="isPublic" className="text-gray-700">
-                                Public Group
-                            </Label>
-                        </div>
+                        {/* Privacy and Members */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="flex items-center space-x-2">
+                                <Switch
+                                    id="isPublic"
+                                    checked={data.isPublic}
+                                    onCheckedChange={handleSwitchChange}
+                                />
+                                <div>
+                                    <Label htmlFor="isPublic">Public Group</Label>
+                                    <p className="text-sm text-gray-500">
+                                        {data.isPublic
+                                            ? "Anyone can join this group"
+                                            : "Requires invitation to join"}
+                                    </p>
+                                </div>
+                            </div>
 
-                        {/* Maximum Members */}
-                        <div className="space-y-2">
-                            <Label htmlFor="maxMembers" className="text-gray-700">
-                                Maximum Members
-                            </Label>
-                            <Input
-                                id="maxMembers"
-                                type="number"
-                                placeholder="Enter maximum number of members"
-                                min="2"
-                                required
-                                className="w-full"
-                                value={data.maxMembers}
-                                onChange={handleInputChange}
-                            />
+                            <div className="space-y-2">
+                                <Label htmlFor="maxMembers">Maximum Members</Label>
+                                <Input
+                                    id="maxMembers"
+                                    type="number"
+                                    min="2"
+                                    max="20"
+                                    value={data.maxMembers}
+                                    onChange={handleInputChange}
+                                    className="w-full"
+                                />
+                                <p className="text-sm text-gray-500">
+                                    Group members must be between 2 and 20.
+                                </p>
+                            </div>
                         </div>
 
                         {/* Submit Button */}
-                        <CardFooter className="pt-4">
+                        <CardFooter className="pt-4 px-0">
                             <Button
                                 type="submit"
-                                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                                className="w-full bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white"
                                 disabled={isLoading}
                             >
-                                {
-                                    isLoading ? (<div className="flex gap-x-1">
-                                        <Loader className="animate-spin" />
-                                        Creating...
-                                    </div>)
-                                        :
-                                        (<div>
-                                            Create Group
-                                        </div>)
-                                }
+                                {isLoading ? (
+                                    <div className="flex items-center gap-x-2">
+                                        <Loader className="animate-spin" size={18} />
+                                        Creating Group...
+                                    </div>
+                                ) : (
+                                    "Create Group"
+                                )}
                             </Button>
                         </CardFooter>
                     </form>

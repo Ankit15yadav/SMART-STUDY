@@ -46,21 +46,12 @@ model Group {
     isPublic    Boolean
     category    String
 
-    tags GroupTag[]
+    tags String[]
 
     members GroupMember[]
 
     createdBy User   @relation("GroupCreator", fields: [userId], references: [id])
     userId    String
-}
-
-model GroupTag {
-    id      String @id @default(uuid())
-    name    String
-    group   Group  @relation(fields: [groupId], references: [id])
-    groupId String
-
-    @@unique([name, groupId])
 }
 
 model GroupMember {

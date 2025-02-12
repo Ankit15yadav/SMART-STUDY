@@ -4,24 +4,30 @@ import { cn } from '@/lib/utils'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import React from 'react'
-import { MessageSquare, Users, PlusCircle, Settings, Heart } from "lucide-react";
+import { MessageSquare, Users, PlusCircle, Settings, Heart, Group } from "lucide-react";
 import Image from 'next/image'
 
 type Props = {}
 
 const Dashboard = [
     {
-        label: "My Chat",
+        label: "My Chats",
         // href: "/groups/joined",
         href: "/groups/5",
 
         icon: <MessageSquare size={20} />
     },
     {
-        label: "All Groups",
+        label: "Created Groups",
         href: "/groups/my-groups",
 
         icon: <Users size={20} />
+    },
+    {
+        label: "All Groups",
+        href: "/groups/my-interest",
+
+        icon: <Group size={20} />
     },
     {
         label: "Create Group",
