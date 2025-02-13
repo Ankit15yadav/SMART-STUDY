@@ -127,6 +127,19 @@ export const GroupRouter = createTRPCRouter({
                     tags: {
                         hasSome: input.userInterests
                     },
+                },
+                select: {
+                    tags: true,
+                    name: true,
+                    id: true,
+                    description: true,
+                    imageUrl: true,
+                    isPublic: true,
+                    maxMembers: true,
+                    category: true,
+                    members: true,
+                    createdBy: true,
+                    createdAt: true
                 }
             })
 

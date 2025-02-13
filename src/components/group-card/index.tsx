@@ -5,6 +5,7 @@ import { Globe, Lock, Users, Edit, User } from "lucide-react"
 import Image from "next/image"
 import { Progress } from "@/components/ui/progress"
 
+
 interface GroupCardProps {
     group: {
         id: string

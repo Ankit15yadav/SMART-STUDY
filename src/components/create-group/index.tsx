@@ -279,7 +279,7 @@ const CreateGroup: React.FC = () => {
                                                 key={interest.id}
                                                 value={interest.title}
                                                 onSelect={() => handleAddTag(interest.title)}
-                                                className="cursor-pointer hover:bg-gray-50"
+                                                className="cursor-pointer p-2 hover:bg-gray-50"
                                             >
                                                 {interest.title}
                                             </CommandItem>
