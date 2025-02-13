@@ -4,6 +4,8 @@ import React from 'react';
 import { api } from '@/trpc/react';
 import MyGroupsSkeleton from "@/components/group-skeleton";
 import GroupCard from "@/components/join-group-card";
+import { Dialog, DialogTrigger } from '@/components/ui/dialog';
+import { group } from 'console';
 
 const AllGroupsBasedOnInterest = () => {
     // Fetch the user's interests and split them into an array
@@ -17,13 +19,12 @@ const AllGroupsBasedOnInterest = () => {
         error,
     } = api.Groups.GetMatchingGroups.useQuery({ userInterests: interestData });
 
-    const joinGroup = (groupId: string) => {
-        console.log('Joining group with id:', groupId);
-        // Implement join group logic here, e.g., call a mutation.
-    };
+    // const joinGroup = (groupId: string) => {
+
+    // };
 
     if (isLoading) return (
-        <div className="groups-container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+        <div className="mt-2 p-4">
             {Array.from({ length: 3 }).map((_, index) => (
                 <MyGroupsSkeleton key={index} />
             ))}
@@ -41,7 +42,7 @@ const AllGroupsBasedOnInterest = () => {
                         ...group,
                         joinedMembers: group.members.length
                     }}
-                    onJoin={joinGroup}
+                // onJoin={joinGroup}
                 />
             ))}
         </div>

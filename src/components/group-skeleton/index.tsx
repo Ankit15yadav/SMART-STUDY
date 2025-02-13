@@ -3,7 +3,7 @@ import { Skeleton } from '../ui/skeleton';
 
 const SkeletonCard = () => {
     return (
-        <div className="flex flex-col space-y-3 p-4 border rounded-lg">
+        <div className="flex flex-col mt-3 space-y-3 p-4 border rounded-lg">
             {/* Circular Avatar Skeleton */}
             <Skeleton className="h-12 w-12 rounded-full" />
 
