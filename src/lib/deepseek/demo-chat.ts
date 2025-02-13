@@ -17,32 +17,33 @@ export const AIsummariseCommit = async (
     skills: string
 ) => {
     const prompt = `
-You are an expert evaluator for private groups. A candidate has applied to join a private group, and the group owner has specified the required skills for members. Evaluate the candidate's application based on the information provided below.
+You are an expert evaluator for private groups. An applicant has applied to join a private group, and the group owner has specified the required skills for members. Evaluate the application based on the information provided below, and speak directly to the applicant as if you were having a one-on-one conversation.
 
-Candidate Profile:
+Applicant Profile:
 - **Resume:** ${resume}
 - **Skills:** ${skills}
 - **Interests:** ${interest}
 
 Group Requirements:
-- **Required Skills:** Must have a good knowledge of React, TypeScript, and Tailwind CSS to be considered for this role.
+- **Required Skills:** You must have a good knowledge of React, TypeScript, and Tailwind CSS to be considered for this role.
 - **Preferred Skills:** Experience with Prisma is a plus.
 
 Instructions:
-1. Assess how well the candidate's resume, skills, and interests match the group's required skills.
+1. Assess how well your resume, skills, and interests match the group's required skills.
 2. Provide a clear verdict:
-   - Output "Approved" if the candidate meets or exceeds the required criteria.
-   - Output "Rejected" if the candidate does not meet the required criteria.
+   - Output "Approved" if you meet or exceed the required criteria.
+   - Output "Rejected" if you do not meet the required criteria.
 3. Include detailed feedback:
-   - Highlight the candidate’s strengths and any areas where their profile aligns well with the group requirements.
-   - Point out any shortcomings or gaps in their profile relative to the group’s needs.
-   - Offer any suggestions for improvement if applicable.
+   - Highlight your strengths and explain how your profile aligns with the group requirements.
+   - Point out any areas where you might need improvement or where there are gaps in your profile relative to the group's needs.
+   - Offer constructive suggestions for how you can improve.
 
 Please structure your response as follows:
 **Verdict:** [Approved/Rejected]
 
 **Feedback:**
 [Your detailed explanation here]
+
   `;
     const response = await ModelParams.generateContent([prompt]);
 
@@ -100,6 +101,7 @@ Please structure your response as follows:
 // )
 //     .then(({ verdict, feedback }) => {
 //         console.log("Verdict:", verdict);
+//         console.log("Feedback:", feedback);
 //     })
 //     .catch(error => {
 //         console.error("Error:", error);
@@ -110,6 +112,7 @@ AIsummariseCommit(`Currently don't have any experience just 1 project of web dev
     `HTML, CSS, JavaScript`,
     `interest in web development`).then(({ verdict, feedback }) => {
         console.log("Verdict:", verdict);
+        console.log("Feedback:", feedback);
     })
     .catch(error => {
         console.error("Error:", error);
