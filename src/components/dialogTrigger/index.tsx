@@ -11,6 +11,7 @@ import { toast } from 'sonner'
 import Link from "next/link";
 import { AlertTriangle } from "lucide-react";
 import useLocalStorageState from "use-local-storage-state";
+import { useRouter } from 'next/navigation'
 
 interface GroupCardProps {
     group: {
@@ -39,12 +40,17 @@ const DialogOpen = ({ group }: GroupCardProps) => {
     const [userResume] = useLocalStorageState<string>('userResume');
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            setSelectedFile(file);
-        }
-    };
+    const router = useRouter();
+
+    const joinGroup = async (groupId: string) => {
+        console.log("Joining group with ID:", groupId);
+
+        router.push("/groups/5")
+    }
+
+    const handlePublicGroupJoin = async (groupdId: string) => {
+        await joinGroup(groupdId);
+    }
 
     const handlePrivateGroupJoin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -55,6 +61,8 @@ const DialogOpen = ({ group }: GroupCardProps) => {
             const result = await processPDF(userResume!, group.tags, "banking , banking fintech and relate to banking");
 
             if (result?.verdict === "Approved") {
+                await joinGroup(group.id);
+
                 toast.success("Profile accepted,  Joining group process initiated.");
             }
 
@@ -140,7 +148,7 @@ const DialogOpen = ({ group }: GroupCardProps) => {
                             <Button
                                 variant="default"
                                 className="w-full bg-green-600 hover:bg-green-700"
-                                onClick={() => console.log("Joining group...")}
+                                onClick={() => handlePublicGroupJoin(group.id)}
                             >
                                 <CheckCircle className="w-5 h-5 mr-2" />
                                 Confirm Join
