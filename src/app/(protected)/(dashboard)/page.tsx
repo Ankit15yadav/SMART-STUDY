@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import React from 'react'
-import { MessageSquare, Users, PlusCircle, Settings, Heart, Group } from "lucide-react";
+import { MessageSquare, Users, PlusCircle, Settings, Heart, Group, FileUser } from "lucide-react";
 import Image from 'next/image'
 
 type Props = {}
@@ -35,11 +35,9 @@ const Dashboard = [
         icon: <PlusCircle size={20} />
     },
     {
-        label: "Settings",
-        // href: "/groups/settings",
-        href: "/groups/2",
-
-        icon: <Settings size={20} />
+        label: "Resume Upload",
+        href: "/groups/resume-upload",
+        icon: <FileUser size={20} />
     },
     {
         label: "Interests",
@@ -47,7 +45,15 @@ const Dashboard = [
         href: "/groups/interest",
 
         icon: <Heart size={20} />
-    }
+    },
+
+    {
+        label: "Settings",
+        // href: "/groups/settings",
+        href: "/groups/2",
+
+        icon: <Settings size={20} />
+    },
 ];
 
 const AppSidebar = (props: Props) => {

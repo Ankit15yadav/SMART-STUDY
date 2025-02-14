@@ -8,6 +8,9 @@ import { Input } from "../ui/input"
 import { Textarea } from "../ui/textarea"
 import { processPDF } from '@/lib/resume-loader'
 import { toast } from 'sonner'
+import Link from "next/link";
+import { AlertTriangle } from "lucide-react";
+import useLocalStorageState from "use-local-storage-state";
 
 interface GroupCardProps {
     group: {
@@ -33,6 +36,8 @@ const DialogOpen = ({ group }: GroupCardProps) => {
     // console.log("Group prop received:", group)
 
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [userResume] = useLocalStorageState<string>('userResume');
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -44,14 +49,23 @@ const DialogOpen = ({ group }: GroupCardProps) => {
     const handlePrivateGroupJoin = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        setIsLoading(true)
+
         try {
+            const result = await processPDF(userResume!, group.tags, "banking , banking fintech and relate to banking");
 
-            const result = await processPDF(group.tags, "banking , banking fintech and relate to banking");
+            if (result?.verdict === "Approved") {
+                toast.success("Profile accepted,  Joining group process initiated.");
+            }
 
-            console.log(result);
-
+            if (result?.verdict === "Rejected") {
+                toast.error("Profile rejected,  Please update your Profile More.");
+            }
         } catch (error) {
-            toast.error("Error in Ai generation");
+            toast.error("Error in AI generation");
+        }
+        finally {
+            setIsLoading(false)
         }
     };
 
@@ -88,13 +102,14 @@ const DialogOpen = ({ group }: GroupCardProps) => {
                             <span className="ml-3 text-sm font-medium px-3 py-1 rounded-full bg-emerald-100 text-emerald-800">
                                 {group.isPublic ? "Public Group" : "Private Group"}
                             </span>
+
                         </DialogTitle>
                     </div>
 
-                    <DialogDescription className="text-gray-600 text-md">
+                    <DialogDescription className="text-gray-600 text-sm">
                         {group.isPublic
                             ? `Join ${group.name} and collaborate with ${group.joinedMembers} members`
-                            : `Request access to this private group. The owner will review your application.`}
+                            : `Apply to join. AI auto-approves the joining process if you qualify.`}
                     </DialogDescription>
 
                     {group.isPublic && (
@@ -142,47 +157,62 @@ const DialogOpen = ({ group }: GroupCardProps) => {
                                     Academic Profile
                                 </Label>
                                 <div className="col-span-3">
-                                    <div className="flex items-center justify-center w-full border-2 border-dashed border-gray-300 rounded-lg p-6 transition-colors hover:border-blue-500">
-                                        <Input
-                                            id="academic-info"
-                                            type="file"
-                                            className="sr-only"
-                                            accept=".pdf"
-                                            onChange={handleFileChange}
-                                            required
-                                        />
-
-                                        <label
-                                            htmlFor="academic-info"
-                                            className="flex flex-col items-center gap-2 cursor-pointer w-full"
-                                        >
-                                            {selectedFile ? (
-                                                <div className="flex items-center gap-3">
-                                                    <FileText className="w-5 h-5 text-blue-500" />
-                                                    <span className="text-gray-700 font-medium">
-                                                        {selectedFile.name}
-                                                    </span>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => setSelectedFile(null)}
-                                                        className="text-red-500 hover:text-red-700"
+                                    {userResume ? (
+                                        <div className="relative p-4 border border-green-200 bg-green-50 rounded-lg">
+                                            <div className="flex items-center gap-3">
+                                                <FileText className="w-5 h-5 text-green-600" />
+                                                <span className="text-gray-700 font-medium">
+                                                    Resume found in your profile
+                                                </span>
+                                                <div className="flex items-center gap-2 ml-auto">
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        asChild
                                                     >
-                                                        <X className="w-4 h-4" />
-                                                    </button>
+                                                        <a
+                                                            href={userResume}
+                                                            target="_blank"
+                                                            rel="noopener"
+                                                        >
+                                                            View Resume
+                                                        </a>
+                                                    </Button>
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        asChild
+                                                    >
+                                                        <Link href="/groups/resume-upload">
+                                                            Update Resume
+                                                        </Link>
+                                                    </Button>
                                                 </div>
-                                            ) : (
-                                                <>
-                                                    <BookOpen className="w-8 h-8 text-blue-400" />
-                                                    <span className="text-sm font-medium text-gray-600">
-                                                        Upload Your Resume
-                                                    </span>
-                                                    <span className="text-xs text-gray-500">
-                                                        (PDF only)
-                                                    </span>
-                                                </>
-                                            )}
-                                        </label>
-                                    </div>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="relative p-4 border border-red-200 bg-red-50 rounded-lg">
+                                            <div className="flex items-center gap-3">
+                                                <AlertTriangle className="w-5 h-5 text-red-600" />
+                                                <span className="text-gray-700 font-medium">
+                                                    No resume uploaded
+                                                </span>
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="ml-auto"
+                                                    asChild
+                                                >
+                                                    <Link href="/groups/resume-upload">
+                                                        Upload Resume
+                                                    </Link>
+                                                </Button>
+                                            </div>
+                                            <p className="text-sm text-red-600 mt-2">
+                                                A resume is required for academic profile completion
+                                            </p>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
@@ -247,10 +277,22 @@ const DialogOpen = ({ group }: GroupCardProps) => {
 
                                 <Button
                                     type="submit"
+                                    disabled={isLoading}
                                     className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
                                 >
-                                    <Rocket className="w-5 h-5 mr-2" />
-                                    Start Learning Journey
+                                    {
+                                        isLoading
+                                            ?
+                                            (<div className='flex gap-x-2 items-center'>
+                                                <Rocket className="w-5 h-5 mr-2" />
+                                                Processing... Please Wait
+                                            </div>)
+                                            :
+                                            (<div className='flex gap-x-2 items-center'>
+                                                <Rocket className="w-5 h-5 mr-2" />
+                                                Start Learning Journey
+                                            </div>)
+                                    }
                                 </Button>
                             </DialogFooter>
                         </div>
@@ -260,5 +302,4 @@ const DialogOpen = ({ group }: GroupCardProps) => {
         </Dialog>
     );
 }
-
 export default DialogOpen;
