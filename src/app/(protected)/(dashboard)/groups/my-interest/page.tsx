@@ -12,16 +12,12 @@ const AllGroupsBasedOnInterest = () => {
     const { data: interests } = api.Groups.getUserInterest.useQuery();
     const interestData = interests?.split(',').map((int) => int.trim()) || [];
 
-    // Fetch groups that match the user interests
     const {
         data: groups,
         isLoading,
         error,
     } = api.Groups.GetMatchingGroups.useQuery({ userInterests: interestData });
 
-    // const joinGroup = (groupId: string) => {
-
-    // };
 
     if (isLoading) return (
         <div className="mt-2 p-4">

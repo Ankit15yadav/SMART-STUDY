@@ -11,9 +11,9 @@ const ModelParams = genAI.getGenerativeModel({
     model: 'gemini-1.5-flash'
 });
 
-export const AIsummariseCommit = async (
-    resume: string,
-    interest: string,
+export const AiBasedGroupJoining = async (
+    resume: string | undefined,
+    interest: string[],
     skills: string
 ) => {
     const prompt = `
@@ -70,7 +70,7 @@ Please structure your response as follows:
 };
 
 // Example usage:
-// AIsummariseCommit(
+// AiBasedGroupJoining(
 //     `Experience
 // App Developer Intern @Samarth Softech December 2024 – present
 // ◦ Led the end-to-end development of a comprehensive application for Samarth Softech, showcasing expertise in full-cycle app development.
@@ -96,7 +96,7 @@ Please structure your response as follows:
 //     `
 // Languages: C++, C, Python, Java, SQL, JavaScript, Typescript
 // Frameworks: Next.js, Express.js
-// Web Technologies: React.js, CSS, Tailwind CSS, Prisma, REST APIs, POSTMAN`,
+// Web Technologies: React.js, CSS, Tailwind CSS, Prisma, REST APIs, POSTMAN]`,
 //     `interest in dsa and web development`
 // )
 //     .then(({ verdict, feedback }) => {
@@ -108,12 +108,12 @@ Please structure your response as follows:
 //     });
 
 
-AIsummariseCommit(`Currently don't have any experience just 1 project of web dev`,
-    `HTML, CSS, JavaScript`,
-    `interest in web development`).then(({ verdict, feedback }) => {
-        console.log("Verdict:", verdict);
-        console.log("Feedback:", feedback);
-    })
-    .catch(error => {
-        console.error("Error:", error);
-    });
+// AiBasedGroupJoining(`Currently don't have any experience just 1 project of web dev`,
+//     `HTML, CSS, JavaScript`,
+//     `interest in web development`).then(({ verdict, feedback }) => {
+//         console.log("Verdict:", verdict);
+//         console.log("Feedback:", feedback);
+//     })
+//     .catch(error => {
+//         console.error("Error:", error);
+//     });
