@@ -12,6 +12,8 @@ const syncUser = async () => {
     const client = await clerkClient();
     const user = await client.users.getUser(userId);
 
+    user.backupCodeEnabled
+
 
     if (!user) return notFound()
 
