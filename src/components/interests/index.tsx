@@ -2,7 +2,7 @@
 import React, { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Plus } from 'lucide-react'
-import { datainterst } from "../../../src/app/(protected)/interests/page"
+import { datainterst } from "../../app/(protected)/interests/page"
 import { set } from 'date-fns'
 
 type Props = {
