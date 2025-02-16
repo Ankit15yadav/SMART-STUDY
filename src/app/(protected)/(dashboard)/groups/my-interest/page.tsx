@@ -18,6 +18,7 @@ const AllGroupsBasedOnInterest = () => {
         error,
     } = api.Groups.GetMatchingGroups.useQuery({ userInterests: interestData });
 
+    console.log("groups of my interest", groups);
 
     if (isLoading) return (
         <div className="mt-2 p-4">
@@ -36,7 +37,8 @@ const AllGroupsBasedOnInterest = () => {
                     key={group.id}
                     group={{
                         ...group,
-                        joinedMembers: group.members.length
+                        joinedMembers: group.members.length,
+                        members: group.members
                     }}
                 // onJoin={joinGroup}
                 />

@@ -3,9 +3,11 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import Image from "next/image"
-import { Globe, Lock, User, } from "lucide-react"
+import { DoorClosed, Globe, Lock, User } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
 import DialogOpen from "../dialogTrigger"
+import { useUser } from "@clerk/nextjs" // Import Clerk's hook
+import { Button } from "../ui/button"
 
 interface GroupCardProps {
     group: {
@@ -18,6 +20,9 @@ interface GroupCardProps {
         maxMembers: number
         tags: string[]
         joinedMembers: number
+        members: {
+            userId: string
+        }[],
         createdBy: {
             firstName: string | null
             lastName: string | null
@@ -28,10 +33,13 @@ interface GroupCardProps {
 }
 
 export default function GroupJoinCard({ group }: GroupCardProps) {
+    const { user } = useUser() // Get the current user from Clerk
+    const isJoined = user?.id
+        ? group.members.some(member => member.userId === user.id)
+        : false
 
     const membershipPercentage = (group.joinedMembers / group.maxMembers) * 100
     const spotsLeft = group.maxMembers - group.joinedMembers
-
 
     return (
         <Card className="w-11/12 mx-auto mb-4 overflow-hidden shadow-md transition-shadow hover:shadow-lg">
@@ -84,6 +92,7 @@ export default function GroupJoinCard({ group }: GroupCardProps) {
                         </span>
                     </div>
                 </div>
+
                 {/* Membership Stats and Join Button */}
                 <div className="flex-shrink-0 w-48 space-y-2">
                     <div className="flex items-center justify-between text-xs text-gray-600">
@@ -92,16 +101,23 @@ export default function GroupJoinCard({ group }: GroupCardProps) {
                         </span>
                         <span>{spotsLeft} spots left</span>
                     </div>
-                    <Progress
-                        value={membershipPercentage}
-                        className="h-2 rounded-full"
-                    />
+                    <Progress value={membershipPercentage} className="h-2 rounded-full" />
 
-                    <DialogOpen group={group} />
-
+                    {isJoined ? (
+                        // If the user has already joined, show a disabled "Joined" button
+                        <Button
+                            disabled
+                            className="w-full flex items-center py-2 rounded-md "
+                        >
+                            <DoorClosed size={20} />
+                            Joined
+                        </Button>
+                    ) : (
+                        // Otherwise, show the join dialog trigger
+                        <DialogOpen group={group} />
+                    )}
                 </div>
             </CardContent>
         </Card>
     )
 }
-

@@ -12,6 +12,8 @@ import Link from "next/link";
 import { AlertTriangle } from "lucide-react";
 import useLocalStorageState from "use-local-storage-state";
 import { useRouter } from 'next/navigation'
+import { api } from '@/trpc/react'
+import useRefetch from '@/hooks/use-refetch'
 
 interface GroupCardProps {
     group: {
@@ -39,13 +41,35 @@ const DialogOpen = ({ group }: GroupCardProps) => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [userResume] = useLocalStorageState<string>('userResume');
     const [isLoading, setIsLoading] = useState(false);
+    const joinGroups = api.Groups.JoinGroup.useMutation();
+    const reftech = useRefetch();
 
     const router = useRouter();
 
     const joinGroup = async (groupId: string) => {
-        console.log("Joining group with ID:", groupId);
+        // console.log("Joining group with ID:", groupId);
 
-        router.push("/groups/5")
+        try {
+
+            await joinGroups.mutateAsync({ groupId },
+                {
+                    onSuccess: () => {
+                        toast.success("Group Joined Successfully")
+
+                        router.push("/groups/chat")
+                        reftech()
+                    },
+                    onError: (error) => {
+                        toast.error("Error while joining group")
+                    }
+                }
+            )
+
+        } catch (error) {
+
+        }
+
+        // router.push("/groups/chat")
     }
 
     const handlePublicGroupJoin = async (groupdId: string) => {

@@ -149,5 +149,49 @@ export const GroupRouter = createTRPCRouter({
             console.log("Error while getting matching groups");
         }
 
+    }),
+
+    JoinGroup: protectedProcedure.input(z.object({
+        groupId: z.string()
+    })).mutation(async ({ ctx, input }) => {
+        if (!ctx.user.userId) throw new Error('User not authenticated')
+
+        const user = await ctx.db.user.findUnique({
+            where: {
+                id: ctx.user.userId,
+            }
+        })
+
+        if (!user) throw new Error('User not found')
+
+        try {
+            const group = await ctx.db.group.findUnique({
+                where: {
+                    id: input.groupId,
+                },
+            })
+
+            if (!group) throw new Error('Group not found')
+
+            const member = await ctx.db.group.update({
+                where: {
+                    id: input.groupId,
+                },
+                data: {
+                    members: {
+                        create: {
+                            role: "member",
+                            userId: ctx.user.userId,
+                        }
+                    }
+                }
+            })
+
+            return member
+
+        } catch (error) {
+            console.error('Database update failed:', error);
+            throw new Error('Database update failed');
+        }
     })
 })
