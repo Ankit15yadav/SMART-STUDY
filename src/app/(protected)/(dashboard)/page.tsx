@@ -13,7 +13,7 @@ const Dashboard = [
     {
         label: "My Chats",
         // href: "/groups/joined",
-        href: "/groups/5",
+        href: "/groups/chat",
 
         icon: <MessageSquare size={20} />
     },
@@ -50,7 +50,7 @@ const Dashboard = [
     {
         label: "Settings",
         // href: "/groups/settings",
-        href: "/groups/2",
+        href: "/groups/settings",
 
         icon: <Settings size={20} />
     },

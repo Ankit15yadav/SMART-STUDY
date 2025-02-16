@@ -21,7 +21,7 @@ io.on("connection", (socket) => {
 
     socket.on("joinGroup", async ({ groupId, userId }) => {
         socket.join(groupId);
-        console.log(`User ${userId} joined group ${groupId}`);
+        // console.log(`User ${userId} joined group ${groupId}`);
 
         // Fetch previous messages
         const messages = await prisma.message.findMany({
@@ -51,7 +51,7 @@ io.on("connection", (socket) => {
             createdAt: message.createdAt,
         });
 
-        console.log(`Message sent in group ${groupId}: ${content}`);
+        // console.log(`Message sent in group ${groupId}: ${content}`);
     });
 
     socket.on("disconnect", () => {

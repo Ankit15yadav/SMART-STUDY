@@ -29,14 +29,13 @@ const SidebarLayout = (props: Props) => {
                 <AppSidebar />
             </div>
 
-            <main className="w-full m-2">
-                <div className="flex items-center gap-2 border-sidebar-border bg-sidebar border shadow rounded-md p-2 px-4">
+            <main className="w-full min-h-screen m-2">
+                {/* <div className="flex items-center gap-2 border-sidebar-border bg-sidebar border shadow rounded-md p-2 px-4">
                     <div className='sm:hidden'>
                         <SidebarTrigger />
                     </div>
                     <div className="ml-auto"></div>
-                    {/* <UserButton afterSignOutUrl='/' /> */}
-                </div>
+                </div> */}
                 <div className="h-4"></div>
                 <div className="border-sidebar-border bg-sidebar border shadow rounded-md overflow-y-scroll h-[calc(100vh-6rem)] ">
                     {props.children}
