@@ -21,16 +21,24 @@ io.on("connection", (socket) => {
 
     socket.on("joinGroup", async ({ groupId, userId }) => {
         socket.join(groupId);
-        // console.log(`User ${userId} joined group ${groupId}`);
 
-        // Fetch previous messages
+        // Fetch previous messages with sender details
         const messages = await prisma.message.findMany({
             where: { groupId },
             orderBy: { createdAt: "asc" },
+            include: {
+                sender: {
+                    select: {
+                        firstName: true,
+                        lastName: true,
+                    },
+                },
+            },
         });
 
         socket.emit("previousMessages", messages);
     });
+
 
     socket.on("sendMessage", async ({ groupId, senderId, content }) => {
         if (!groupId || !senderId || !content) return;
@@ -40,7 +48,15 @@ io.on("connection", (socket) => {
                 groupId,
                 senderId,
                 content,
-                createdAt: new Date()
+                createdAt: new Date(),
+            },
+            include: {
+                sender: {
+                    select: {
+                        firstName: true,
+                        lastName: true,
+                    },
+                },
             },
         });
 
@@ -49,10 +65,10 @@ io.on("connection", (socket) => {
             content: message.content,
             senderId: message.senderId,
             createdAt: message.createdAt,
+            sender: message.sender, // Include sender details
         });
-
-        // console.log(`Message sent in group ${groupId}: ${content}`);
     });
+
 
     socket.on("disconnect", () => {
         console.log(`User disconnected: ${socket.id}`);

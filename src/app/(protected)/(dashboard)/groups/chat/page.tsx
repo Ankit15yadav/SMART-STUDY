@@ -10,7 +10,8 @@ import { Button } from '@/components/ui/button'
 import { useUser } from '@clerk/nextjs'
 import io from "socket.io-client";
 
-const socket = io("http://192.168.1.6:4000");
+// const socket = io("http://192.168.1.6:4000");
+const socket = io("http://localhost:4000");
 
 interface Message {
     id: string;
@@ -39,6 +40,29 @@ const ChatPage = () => {
     const [messages, setMessages] = useState<Message[]>([]);
     const [message, setMessage] = useState('')
     const messagesEndRef = useRef<HTMLDivElement>(null);
+
+    const [showMessage, setShowMessage] = useState(true)
+    const [hideMessage, setHideMessage] = useState(false)
+
+    // console.log(messages);
+
+    useEffect(() => {
+        setShowMessage(true)
+        setHideMessage(false)
+
+        const fadeOutTimer = setTimeout(() => {
+            setHideMessage(true) // Start fading out
+        }, 2500)
+
+        const removeTimer = setTimeout(() => {
+            setShowMessage(false) // Remove after fade-out
+        }, 3000)
+
+        return () => {
+            clearTimeout(fadeOutTimer)
+            clearTimeout(removeTimer)
+        }
+    }, [selectedGroup])
 
     // Socket.io handlers
     useEffect(() => {
@@ -85,7 +109,7 @@ const ChatPage = () => {
 
     return (
         // <ScrollArea className='h-[calc(100vh-2rem)]'>
-        <div className="w-full grid md:grid-cols-4 gap-x-2 min-h-screen">
+        <div className="w-full grid md:grid-cols-4 gap-x-2 min-h-screen overflow-y-hidden">
             {/* Sidebar with Scrollable Group List */}
             <div className="grid md:col-span-1 rounded-md border">
                 <div className="p-2 border-b flex items-center font-semibold">Chats</div>
@@ -116,9 +140,11 @@ const ChatPage = () => {
                                 />
                                 <div>
                                     <h2 className="font-semibold">{selectedGroup.name}</h2>
-                                    <p className="text-sm text-muted-foreground">
-                                        {selectedGroup.members.length}/{selectedGroup.maxMembers} members
-                                    </p>
+                                    {showMessage && (
+                                        <p className={`text-sm transition-opacity duration-500 ease-in-out ${hideMessage ? "opacity-0" : "opacity-100"}`}>
+                                            select for group info
+                                        </p>
+                                    )}
                                 </div>
                             </div>
 
@@ -138,6 +164,8 @@ const ChatPage = () => {
                                                     {msg.senderId !== userId && (
                                                         <p className="text-xs text-gray-600 mb-1">
                                                             {msg.sender?.firstName || "Unknown User"}
+                                                            {" "}
+                                                            {msg.sender?.lastName}
                                                         </p>
                                                     )}
                                                     <p>{msg.content}</p>

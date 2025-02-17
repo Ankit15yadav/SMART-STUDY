@@ -32,6 +32,7 @@ model User {
     groupMembers  GroupMember[]
     sentMessages  Message[] // New relation
     createdGroups Group[]       @relation("GroupCreator")
+    MessageRead   MessageRead[]
 }
 
 model Group {
@@ -67,15 +68,25 @@ model GroupMember {
 }
 
 // New Message model
-model Message {
-    id        String   @id @default(uuid())
-    content   String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    group     Group    @relation(fields: [groupId], references: [id])
-    groupId   String
-    sender    User     @relation(fields: [senderId], references: [id])
-    senderId  String
 
-    @@index([groupId])
+model Message {
+    id        String        @id @default(uuid())
+    content   String
+    createdAt DateTime      @default(now())
+    groupId   String
+    senderId  String
+    sender    User          @relation(fields: [senderId], references: [id])
+    group     Group         @relation(fields: [groupId], references: [id])
+    readBy    MessageRead[]
+}
+
+model MessageRead {
+    id        String   @id @default(uuid())
+    messageId String
+    userId    String
+    message   Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    readAt    DateTime @default(now())
+
+    @@unique([messageId, userId])
 }
