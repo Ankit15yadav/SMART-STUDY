@@ -6,6 +6,7 @@ import MyGroupsSkeleton from "@/components/group-skeleton";
 import GroupCard from "@/components/join-group-card";
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import { group } from 'console';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const AllGroupsBasedOnInterest = () => {
     // Fetch the user's interests and split them into an array
@@ -31,19 +32,22 @@ const AllGroupsBasedOnInterest = () => {
     if (error) return <div>Error loading groups.</div>;
 
     return (
-        <div className="w-full">
-            {groups?.map((group) => (
-                <GroupCard
-                    key={group.id}
-                    group={{
-                        ...group,
-                        joinedMembers: group.members.length,
-                        members: group.members
-                    }}
-                // onJoin={joinGroup}
-                />
-            ))}
-        </div>
+        <ScrollArea className='h-[calc(100vh-4rem)]'>
+            <div className="w-full">
+                {groups?.map((group) => (
+                    <GroupCard
+                        key={group.id}
+                        group={{
+                            ...group,
+                            joinedMembers: group.members.length,
+                            members: group.members
+                        }}
+                    // onJoin={joinGroup}
+                    />
+                ))}
+            </div>
+        </ScrollArea>
+
     );
 };
 

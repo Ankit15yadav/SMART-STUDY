@@ -193,5 +193,44 @@ export const GroupRouter = createTRPCRouter({
             console.error('Database update failed:', error);
             throw new Error('Database update failed');
         }
+    }),
+
+    getJoinedGroups: protectedProcedure.query(async ({ ctx }) => {
+
+        if (!ctx.user.userId) throw new Error('User not authenticated')
+
+        const user = await ctx.db.user.findUnique({
+            where: {
+                id: ctx.user.userId,
+            }
+        })
+
+        if (!user) throw new Error('User not found')
+
+        try {
+
+            const group = await ctx.db.group.findMany({
+                where: {
+                    members: {
+                        some: {
+                            userId: ctx.user.userId
+                        }
+                    },
+                },
+                select: {
+                    id: true,
+                    name: true,
+                    imageUrl: true,
+                    isPublic: true,
+                    members: true,
+                    maxMembers: true,
+                }
+            })
+
+            return group;
+
+        } catch (error) {
+            console.log("Error while getting joined groups", error);
+        }
     })
 })

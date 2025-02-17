@@ -99,7 +99,7 @@ const ResumeUploader = () => {
     }
 
     return (
-        <div className="min-h-screen bg-muted/40 p-4 sm:p-8">
+        <div className="min-h-screen bg-muted/40 p-4 sm:p-8 ">
             {/* Set overall max-width to 8xl and use a 3-column grid on medium screens */}
             <div className="max-w-8xl mx-auto grid gap-8 md:grid-cols-3">
                 {/* Resume Section takes 1 column */}

@@ -31,7 +31,7 @@ export function GroupCard({ group, onEdit }: GroupCardProps) {
                     {/* Group Image with hover effect */}
                     <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 border-2 border-muted/50 hover:border-primary/20 transition-all">
                         <Image
-                            src="/assets/images/group.webp"
+                            src={group.imageUrl || '/assets/images/group.webp'}
                             alt={group.name}
                             layout="fill"
                             objectFit="cover"

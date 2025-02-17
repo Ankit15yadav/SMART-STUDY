@@ -11,6 +11,7 @@ import { api } from '@/trpc/react'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
+import { ScrollArea } from '@/components/ui/scroll-area'
 
 
 const dancingScript = Dancing_Script({ subsets: ['latin'], weight: '400' })
@@ -50,9 +51,11 @@ const Interests = () => {
     }
 
     return (
-        <div className='w-full '>
-            <div className='w-11/12 mx-auto  min-h-screen'>
-                {/* <div className='flex items-center justify-center  pt-2'>
+
+        <ScrollArea className="h-[calc(100vh-4rem)] w-full">
+            <div className='w-full '>
+                <div className='w-11/12 mx-auto  min-h-screen'>
+                    {/* <div className='flex items-center justify-center  pt-2'>
                     <Image
                         src={"/assets/images/logo.png"}
                         alt='logo'
@@ -62,40 +65,43 @@ const Interests = () => {
                     />
                 </div> */}
 
-                <div className='flex flex-col justify-center items-center py-4'>
-                    <h1 className={`text-4xl ${dancingScript.className}`}>What are you interested in?</h1>
-                    <p className='text-muted-foreground mt-2 text-sm' >Choose  five interests or more</p>
-                </div>
+                    <div className='flex flex-col justify-center items-center py-4'>
+                        <h1 className={`text-4xl ${dancingScript.className}`}>What are you interested in?</h1>
+                        <p className='text-muted-foreground mt-2 text-sm' >Choose  five interests or more</p>
+                    </div>
 
-                <div className="h-8"></div>
-                <div className='w-11/12 mx-auto  justify-center flex flex-wrap gap-4'>
-                    {data.map((Interest, index) => (
-                        <InterestsCard title={Interest.title} interests={interests} setInterests={setInterests} key={index} />
-                    ))}
-                </div>
-                <div className="h-4"></div>
-                <div className='flex justify-end'>
-                    <Button
-                        onClick={handleInterest}
-                        disabled={interests.length < 5}
-                    >
-                        {
-                            isloading ?
-                                (<div className='flex items-center gap-x-2'>
-                                    Saving...
-                                    <Loader2 className='animate-spin' />
-                                </div>)
-                                :
-                                (<div className='flex items-center gap-x-2'>
-                                    Continue
-                                    <ArrowRight />
-                                </div>)
-                        }
-                    </Button>
-                </div>
+                    <div className="h-8"></div>
+                    <div className='w-11/12 mx-auto  justify-center flex flex-wrap gap-4'>
+                        {data.map((Interest, index) => (
+                            <InterestsCard title={Interest.title} interests={interests} setInterests={setInterests} key={index} />
+                        ))}
+                    </div>
+                    <div className="h-4"></div>
+                    <div className='flex justify-end'>
+                        <Button
+                            onClick={handleInterest}
+                            disabled={interests.length < 5}
+                        >
+                            {
+                                isloading ?
+                                    (<div className='flex items-center gap-x-2'>
+                                        Saving...
+                                        <Loader2 className='animate-spin' />
+                                    </div>)
+                                    :
+                                    (<div className='flex items-center gap-x-2'>
+                                        Continue
+                                        <ArrowRight />
+                                    </div>)
+                            }
+                        </Button>
+                    </div>
 
+                </div>
             </div>
-        </div>
+
+        </ScrollArea>
+
 
     )
 }
