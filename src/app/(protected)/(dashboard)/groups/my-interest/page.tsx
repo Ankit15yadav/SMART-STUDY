@@ -19,7 +19,7 @@ const AllGroupsBasedOnInterest = () => {
         error,
     } = api.Groups.GetMatchingGroups.useQuery({ userInterests: interestData });
 
-    console.log("groups of my interest", groups);
+    // console.log("groups of my interest", groups);
 
     if (isLoading) return (
         <div className="mt-2 p-4">
@@ -32,21 +32,29 @@ const AllGroupsBasedOnInterest = () => {
     if (error) return <div>Error loading groups.</div>;
 
     return (
-        <ScrollArea className='h-[calc(100vh-4rem)]'>
-            <div className="w-full">
-                {groups?.map((group) => (
-                    <GroupCard
-                        key={group.id}
-                        group={{
-                            ...group,
-                            joinedMembers: group.members.length,
-                            members: group.members
-                        }}
-                    // onJoin={joinGroup}
-                    />
-                ))}
+        <div>
+            {/* <div>
+                <h1 className="text-2xl font-bold">Groups based on your interests</h1>
+            </div> */}
+            <div>
+                <ScrollArea className='h-[calc(100vh-4rem)]'>
+                    <div className="w-full h-full pb-10">
+                        {groups?.map((group) => (
+                            <GroupCard
+                                key={group.id}
+                                group={{
+                                    ...group,
+                                    joinedMembers: group.members.length,
+                                    members: group.members
+                                }}
+                            />
+                        ))}
+                    </div>
+                </ScrollArea>
             </div>
-        </ScrollArea>
+
+
+        </div>
 
     );
 };
