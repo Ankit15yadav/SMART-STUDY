@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/button'
 import { useUser } from '@clerk/nextjs'
 import io from "socket.io-client";
 
-// const socket = io("http://192.168.1.6:4000");
 const socket = io("http://localhost:4000");
 
 interface Message {
@@ -25,46 +24,70 @@ interface Message {
 }
 
 interface Group {
-    id: string
-    name: string
-    imageUrl: string | null
-    maxMembers: number
-    members: { userId: string }[]
+    id: string;
+    name: string;
+    imageUrl: string | null;
+    maxMembers: number;
+    members: { userId: string }[];
 }
 
 const ChatPage = () => {
     const { user } = useUser();
     const userId = user?.id || "";
-    const [selectedGroup, setSelectedGroup] = useState<Group | null>(null)
-    const { data: getJoinedGroups, isLoading } = api.Groups.getJoinedGroups.useQuery()
+
+    // Get the groups from your TRPC query
+    const { data: getJoinedGroups, isLoading } = api.Groups.getJoinedGroups.useQuery();
+    // Use a local state variable to allow reordering
+    const [groups, setGroups] = useState<Group[]>([]);
+    const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
-    const [message, setMessage] = useState('')
+    const [message, setMessage] = useState('');
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    const [showMessage, setShowMessage] = useState(true)
-    const [hideMessage, setHideMessage] = useState(false)
+    // State for the temporary group info message
+    const [showMessage, setShowMessage] = useState(true);
+    const [hideMessage, setHideMessage] = useState(false);
 
-    // console.log(messages);
+    // Helper function to format the timestamp
+    const formatTimestamp = (timestamp: Date | string): string => {
+        const date = new Date(timestamp);
+        const now = new Date();
 
-    useEffect(() => {
-        setShowMessage(true)
-        setHideMessage(false)
+        // Create date objects for comparison (year, month, day only)
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const yesterday = new Date(today);
+        yesterday.setDate(today.getDate() - 1);
+        const messageDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
 
-        const fadeOutTimer = setTimeout(() => {
-            setHideMessage(true) // Start fading out
-        }, 2500)
-
-        const removeTimer = setTimeout(() => {
-            setShowMessage(false) // Remove after fade-out
-        }, 3000)
-
-        return () => {
-            clearTimeout(fadeOutTimer)
-            clearTimeout(removeTimer)
+        if (messageDate.getTime() === today.getTime()) {
+            return `Today at ${date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+        } else if (messageDate.getTime() === yesterday.getTime()) {
+            return `Yesterday at ${date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+        } else {
+            return `${date.toLocaleDateString()} at ${date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
         }
-    }, [selectedGroup])
+    };
 
-    // Socket.io handlers
+    // When a new group list is fetched, update local state
+    useEffect(() => {
+        if (getJoinedGroups) {
+            setGroups(getJoinedGroups);
+        }
+    }, [getJoinedGroups]);
+
+    // Show a fading message when a group is selected
+    useEffect(() => {
+        setShowMessage(true);
+        setHideMessage(false);
+        const fadeOutTimer = setTimeout(() => setHideMessage(true), 2500);
+        const removeTimer = setTimeout(() => setShowMessage(false), 3000);
+        return () => {
+            clearTimeout(fadeOutTimer);
+            clearTimeout(removeTimer);
+        };
+    }, [selectedGroup]);
+
+    // Socket.io handlers for messages
     useEffect(() => {
         socket.on("previousMessages", (msgs: Message[]) => {
             setMessages(msgs);
@@ -80,13 +103,14 @@ const ChatPage = () => {
         };
     }, []);
 
-    // Scroll to bottom when messages update
+    // Auto-scroll to the bottom when messages update
     useEffect(() => {
         if (messagesEndRef.current) {
             messagesEndRef.current.scrollIntoView({ behavior: "instant", block: "end" });
         }
     }, [messages]);
 
+    // When joining a group, emit the join event
     const handleJoinGroup = (group: Group) => {
         setSelectedGroup(group);
         socket.emit("joinGroup", {
@@ -95,29 +119,40 @@ const ChatPage = () => {
         });
     };
 
+    // When sending a message, emit the message and then reorder the groups
     const handleSendMessage = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
+        e.preventDefault();
         if (message.trim() && selectedGroup?.id && userId) {
             socket.emit("sendMessage", {
                 groupId: selectedGroup.id,
                 senderId: userId,
                 content: message,
             });
-            setMessage('')
+            setMessage('');
+
+            // Reorder the groups so that the selected group moves to the top
+            setGroups((prevGroups) => {
+                if (!selectedGroup) return prevGroups;
+                const filtered = prevGroups.filter((g) => g.id !== selectedGroup.id);
+                return [selectedGroup, ...filtered];
+            });
         }
-    }
+    };
 
     return (
-        // <ScrollArea className='h-[calc(100vh-2rem)]'>
         <div className="w-full grid md:grid-cols-4 gap-x-2 min-h-screen overflow-y-hidden">
-            {/* Sidebar with Scrollable Group List */}
+            {/* Sidebar: Group List */}
             <div className="grid md:col-span-1 rounded-md border">
                 <div className="p-2 border-b flex items-center font-semibold">Chats</div>
                 <ScrollArea className="h-[calc(100vh-4rem)] w-full">
                     <div className="px-3 pb-16">
-                        {getJoinedGroups?.map((group) => (
+                        {groups.map((group) => (
                             <div key={group.id} onClick={() => handleJoinGroup(group)}>
-                                <GroupChatCard group={group} selectedGroupid={selectedGroup?.id || ''} />
+                                <GroupChatCard
+                                    group={group}
+                                    messages={messages}
+                                    selectedGroupid={selectedGroup?.id || ''}
+                                />
                             </div>
                         ))}
                     </div>
@@ -126,7 +161,7 @@ const ChatPage = () => {
 
             {/* Chat Window */}
             <div className="grid md:col-span-3 rounded-md flex-col pb-16">
-                <div className='flex flex-col justify-between h-full'>
+                <div className="flex flex-col justify-between h-full">
                     {selectedGroup ? (
                         <>
                             {/* Header Section */}
@@ -158,14 +193,13 @@ const ChatPage = () => {
                                                 className={`flex ${msg.senderId === userId ? "justify-end" : "justify-start"}`}
                                             >
                                                 <div className={`p-3 rounded-lg max-w-[75%] ${msg.senderId === userId
-                                                    ? "bg-blue-500 text-white"
+                                                    ? "bg-primary text-white"
                                                     : "bg-gray-100"}`}
                                                 >
                                                     {msg.senderId !== userId && (
                                                         <p className="text-xs text-gray-600 mb-1">
-                                                            {msg.sender?.firstName || "Unknown User"}
-                                                            {" "}
-                                                            {msg.sender?.lastName}
+                                                            {msg.sender?.firstName || "Unknown User"}{" "}
+                                                            {msg.sender?.lastName || ""}
                                                         </p>
                                                     )}
                                                     <p>{msg.content}</p>
@@ -173,10 +207,7 @@ const ChatPage = () => {
                                                         ? "text-blue-100"
                                                         : "text-gray-500"}`}
                                                     >
-                                                        {new Date(msg.createdAt).toLocaleTimeString([], {
-                                                            hour: "2-digit",
-                                                            minute: "2-digit",
-                                                        })}
+                                                        {formatTimestamp(msg.createdAt)}
                                                     </p>
                                                 </div>
                                             </div>
@@ -207,8 +238,7 @@ const ChatPage = () => {
                 </div>
             </div>
         </div>
-        // </ScrollArea>
-    )
-}
+    );
+};
 
-export default ChatPage
+export default ChatPage;

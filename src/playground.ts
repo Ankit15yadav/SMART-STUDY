@@ -297,3 +297,6 @@
 // };
 
 // export default ChatComponent;
+
+
+// "dev:socket": "concurrently \"next dev\" \"tsx server.mts\"",

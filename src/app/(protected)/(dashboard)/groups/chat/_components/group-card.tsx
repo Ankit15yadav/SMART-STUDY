@@ -12,9 +12,21 @@ interface GroupChatCardProps {
         }[]
     },
     selectedGroupid: string
+    messages: Message[]
 }
 
-const GroupChatCard = ({ group, selectedGroupid }: GroupChatCardProps) => {
+interface Message {
+    id: string;
+    content: string;
+    senderId: string;
+    createdAt: Date;
+    sender?: {
+        firstName: string | null;
+        lastName: string | null;
+    };
+}
+
+const GroupChatCard = ({ group, selectedGroupid, messages }: GroupChatCardProps) => {
     const membersCount = group.members.length
     const maxMembers = group.maxMembers
 
@@ -44,7 +56,9 @@ const GroupChatCard = ({ group, selectedGroupid }: GroupChatCardProps) => {
                 <div className="flex-1">
                     <h3 className="font-semibold">{group.name}</h3>
                     <p className="text-sm text-muted-foreground">
-                        {membersCount}/{maxMembers} members
+                        {messages[0]?.sender?.firstName}
+                        {" "}
+                        {messages[0]?.content}
                     </p>
                 </div>
             </div>

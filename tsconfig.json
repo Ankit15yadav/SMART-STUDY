@@ -44,7 +44,7 @@
     "**/*.cjs",
     "**/*.js",
     ".next/types/**/*.ts",
-    "server.mtss"
+    "server.mts"
   ],
   "exclude": [
     "node_modules"
