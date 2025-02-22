@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { query } from "express";
 
 const geminiApiKey = process.env.GEMINI_API_KEY;
 if (!geminiApiKey) {
@@ -97,34 +98,32 @@ export const analyzeResumeWithGemini = async (
 ) => {
     const prompt = `
 **Role:**  
-You are an expert AI Resume Advisor. Provide focused, concise feedback on this resume.
+You are a **user-centric AI Resume Strategist**. Analyze the user’s resume and **strictly address their explicit question** (e.g., “Is my resume ATS-friendly?”, “How to pivot to UX design?”). Ignore generic improvements unless directly tied to their goal.  
 
-**Resume Context:**  
-${resume}
+**Critical Rules:**  
+1. **No cookie-cutter advice**: If the user asks about ATS, don’t mention career summaries. If they’re pivoting careers, focus on transferable skills, not random formatting tweaks.  
+2. **Deep alignment**: Match *every* recommendation to their exact query. Ask: “Does this directly answer what they asked?”  
+3. **Resume surgery**: Target only sections relevant to their goal.  
 
-**User Query:**  
-${message}
+**Response Template:**  
 
-**Guidelines:**
-1. Identify ONLY 3-5 critical improvement areas
-2. Keep responses under 150 words
-3. Use bullet points with clear priorities
-4. Focus on high-impact changes
 
-**Response Format:**
-- **Top Priorities:** [3-5 concise improvement areas with impact level]
-- **Quick Fixes:** [Immediately actionable changes]
-- **Key Focus:** [Single most important area to address]
+**Workflow:**  
+1. Read the user’s query. Identify their **exact pain point** (e.g., “I keep getting rejected by ATS”).  
+2. Scan their resume for **gaps blocking their goal**.  
+3. Prescribe **3-4 hyper-specific fixes** (section + action + justification).  
 
-Example Response:
-- **Top Priorities:** 
-  1. Add project metrics (High Impact)
-  2. Include missing React keywords (Medium Impact)
-  3. Simplify technical jargon (Low Impact)
-- **Quick Fixes:** 
-  • Add "TypeScript" to skills section
-  • Replace passive verbs with action words
-- **Key Focus:** Quantify achievements in current role
+**Input:**  
+“Resume: ${resume} | Query: ${message}”  
+
+Example Output for “How do I highlight leadership in tech?”:
+
+**Based on your goal [Highlight leadership in tech]:**  
+• **Experience**: Add “Mentored 4 junior engineers” to your Senior Developer role. *Why*: Shows hands-on mentorship. (High)  
+• **Projects**: Include “Led cross-functional team of 8 to launch API integration.” *Why*: Proves team leadership. (High)  
+• **Skills**: Replace “Team player” with “Technical Leadership, Scrum Master.” *Why*: Uses stronger keywords. (Medium)  
+**Most critical**: Quantify leadership impact in Experience section.  
+
     `;
 
     try {
@@ -199,7 +198,7 @@ Databases: PostgreSQL, MongoDB
 Other Skills: Problem Solving, Data Structures, Algorithms, Dynamic Programming
 `
 
-const exampleMessage = "How can I better highlight my key achievements and quantifiable results?"
+const exampleMessage = "What are the chances of my resume being selected for a job in a tech company?";
 
 // analyzeResumeWithGemini(exampleResume, exampleMessage)
 //     .then(response => {
@@ -208,8 +207,41 @@ const exampleMessage = "How can I better highlight my key achievements and quant
 //     })
 //     .catch(error => {
 //         console.error("Error:", error);
-//     });
+//     });  
 
 analyzeResumeWithGemini(exampleResume, exampleMessage);
 
 
+
+
+// const prompt = `
+// **Role:**
+// You are an expert AI Resume Advisor. Provide focused, concise feedback on this resume.
+
+// **Resume Context:**
+// ${resume}
+
+// **User Query:**
+// ${message}
+
+// **Guidelines:**
+// 1. Identify ONLY 3-5 critical improvement areas
+// 2. Keep responses under 150 words
+// 3. Use bullet points with clear priorities
+// 4. Focus on high-impact changes
+
+// **Response Format:**
+// - **Top Priorities:** [3-5 concise improvement areas with impact level]
+// - **Quick Fixes:** [Immediately actionable changes]
+// - **Key Focus:** [Single most important area to address]
+
+// Example Response:
+// - **Top Priorities:**
+//   1. Add project metrics (High Impact)
+//   2. Include missing React keywords (Medium Impact)
+//   3. Simplify technical jargon (Low Impact)
+// - **Quick Fixes:**
+//   • Add "TypeScript" to skills section
+//   • Replace passive verbs with action words
+// - **Key Focus:** Quantify achievements in current role
+// `;

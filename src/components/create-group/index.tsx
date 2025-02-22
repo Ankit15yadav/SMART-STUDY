@@ -38,6 +38,7 @@ interface FormData {
     tags: string[];
     image: File | null;
     preview: string | null;
+    privateGroupInfo?: string | null;
 }
 
 const initialFormData: FormData = {
@@ -48,6 +49,7 @@ const initialFormData: FormData = {
     tags: [],
     image: null,
     preview: null,
+    privateGroupInfo: null,
 };
 
 
@@ -146,6 +148,7 @@ const CreateGroup: React.FC = () => {
                 isPublic: data.isPublic,
                 Tag: data.tags,
                 imageUrl: data.preview || undefined,
+                privateGroupInfo: data.privateGroupInfo || undefined,
             });
             toast.success("Group created successfully!");
             refetch();
@@ -297,7 +300,7 @@ const CreateGroup: React.FC = () => {
                             </div>
 
                             {/* Privacy and Members */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="flex flex-col ">
                                 <div className="flex items-center space-x-2">
                                     <Switch
                                         id="isPublic"
@@ -314,7 +317,25 @@ const CreateGroup: React.FC = () => {
                                     </div>
                                 </div>
 
-                                <div className="space-y-2">
+
+                                {
+                                    !data.isPublic && (
+                                        <div className="mt-2">
+                                            <Label htmlFor="privateGroupInfo"> Group Requirements</Label>
+                                            <Textarea
+                                                className="mt-2"
+                                                placeholder="Describe the requirements to join this private group..."
+                                                id="privateGroupInfo"
+                                                value={data.privateGroupInfo || ""}
+                                                onChange={handleInputChange}
+                                                required
+                                            />
+                                        </div>
+
+                                    )
+                                }
+
+                                <div className="space-y-2 mt-4">
                                     <Label htmlFor="maxMembers">Maximum Members</Label>
                                     <Input
                                         id="maxMembers"

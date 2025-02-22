@@ -12,7 +12,8 @@ export const GroupRouter = createTRPCRouter({
             Maxmembers: z.number().min(1),
             imageUrl: z.string().optional(),
             isPublic: z.boolean(),
-            Tag: z.array(z.string())
+            Tag: z.array(z.string()),
+            privateGroupInfo: z.string().optional(),
         }))
         .mutation(async ({ ctx, input }) => {
 
@@ -36,6 +37,7 @@ export const GroupRouter = createTRPCRouter({
                         imageUrl: input.imageUrl,
                         category: "",
                         isPublic: input.isPublic,
+                        privateGroupInfo: input.privateGroupInfo,
 
                         tags: input.Tag,
                         members: {
@@ -139,7 +141,8 @@ export const GroupRouter = createTRPCRouter({
                     category: true,
                     members: true,
                     createdBy: true,
-                    createdAt: true
+                    createdAt: true,
+                    privateGroupInfo: true,
                 }
             })
 

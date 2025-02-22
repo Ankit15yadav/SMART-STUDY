@@ -47,6 +47,8 @@ model Group {
     isPublic    Boolean
     category    String
 
+    privateGroupInfo String?
+
     tags String[]
 
     members  GroupMember[]

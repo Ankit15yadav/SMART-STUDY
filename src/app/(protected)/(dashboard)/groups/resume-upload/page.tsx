@@ -14,11 +14,29 @@ import {
     MessageCircleIcon as ChatBubbleIcon,
     UploadCloudIcon,
     FileIcon,
+    Loader,
+    Loader2,
 } from "lucide-react"
 import { useDropzone } from "react-dropzone"
 import { toast } from "sonner"
+import { api } from "@/trpc/react"
+import { group } from "console"
+import SelectGroupForResume from "./_component/select-group-resume"
 
 const ResumeUploader = () => {
+
+    const { data: interests } = api.Groups.getUserInterest.useQuery();
+    const interestData = interests?.split(',').map((int) => int.trim()) || [];
+
+    const {
+        data: groups,
+        isLoading
+    } = api.Groups.GetMatchingGroups.useQuery({ userInterests: interestData }, {
+        staleTime: 1000 * 60 * 2,
+    });
+
+    // console.log(groups);
+
     const [file, setFile] = useState<File | null>(null)
     const [uploading, setUploading] = useState(false)
     const [error, setError] = useState<string | null>(null)
@@ -26,6 +44,7 @@ const ResumeUploader = () => {
     const [storedResume, setStoredResume] = useLocalStorageState<string>("userResume")
     const [chatMessage, setChatMessage] = useState("")
     const [chatHistory, setChatHistory] = useState<Array<{ question: string; answer: string }>>([])
+
 
     const onDrop = useCallback((acceptedFiles: File[]) => {
         const selectedFile = acceptedFiles[0]
@@ -157,6 +176,22 @@ const ResumeUploader = () => {
                                     </Button>
                                 )}
                             </div>
+                        </div>
+                        <div className="space-y-4">
+                            <CardDescription className="text-red-600 font-semibold">
+                                Select Group you want to refine your resume for
+                            </CardDescription>
+
+                            {groups && !isLoading ? (
+                                <SelectGroupForResume groups={groups} />
+                            ) : (
+                                <div className="flex justify-center">
+                                    <div className="text-muted-foreground">Loading groups...</div>
+                                    <Loader2 className="animate-spin" />
+                                </div>
+
+                            )}
+
                         </div>
                     </CardContent>
                 </Card>

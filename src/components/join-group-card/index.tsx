@@ -23,6 +23,7 @@ interface GroupCardProps {
         members: {
             userId: string
         }[],
+        privateGroupInfo: string | null
         createdBy: {
             firstName: string | null
             lastName: string | null

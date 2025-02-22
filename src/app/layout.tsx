@@ -6,6 +6,7 @@ import { type Metadata } from "next";
 import { TRPCReactProvider } from "@/trpc/react";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "sonner";
+import { SocketProvider } from "@/context/SocketProvider";
 
 export const metadata: Metadata = {
   title: "Smart Study",
@@ -18,13 +19,16 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <ClerkProvider>
-      <html suppressHydrationWarning lang="en" className={`${GeistSans.variable}`}>
-        <body>
-          <TRPCReactProvider>{children}</TRPCReactProvider>
-          <Toaster />
+      <SocketProvider>
+        <html suppressHydrationWarning lang="en" className={`${GeistSans.variable}`}>
+          <body>
+            <TRPCReactProvider>{children}</TRPCReactProvider>
+            <Toaster />
 
-        </body>
-      </html>
+          </body>
+        </html>
+      </SocketProvider>
+
     </ClerkProvider>
 
   );

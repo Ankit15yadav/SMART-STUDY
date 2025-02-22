@@ -8,7 +8,7 @@ const socket_1 = __importDefault(require("./services/socket"));
 async function init() {
     const socketService = new socket_1.default();
     const httpServer = http_1.default.createServer();
-    const PORT = process.env.PORT || 8000;
+    const PORT = process.env.PORT || 8002;
     socketService.io.attach(httpServer);
     httpServer.listen(PORT, () => {
         console.log(`Server is running on port ${PORT}`);

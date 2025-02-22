@@ -14,6 +14,7 @@ import useLocalStorageState from "use-local-storage-state";
 import { useRouter } from 'next/navigation'
 import { api } from '@/trpc/react'
 import useRefetch from '@/hooks/use-refetch'
+import { groupCollapsed } from 'console'
 
 interface GroupCardProps {
     group: {
@@ -25,7 +26,8 @@ interface GroupCardProps {
         isPublic: boolean
         maxMembers: number
         tags: string[]
-        joinedMembers: number
+        joinedMembers: number,
+        privateGroupInfo?: string | null,
         createdBy: {
             firstName: string | null
             lastName: string | null
@@ -82,7 +84,7 @@ const DialogOpen = ({ group }: GroupCardProps) => {
         setIsLoading(true)
 
         try {
-            const result = await processPDF(userResume!, group.tags, "banking , banking fintech and relate to banking");
+            const result = await processPDF(userResume!, group.tags, group.privateGroupInfo || "");
 
             if (result?.verdict === "Approved") {
                 await joinGroup(group.id);

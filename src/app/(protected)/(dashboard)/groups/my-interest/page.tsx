@@ -17,7 +17,9 @@ const AllGroupsBasedOnInterest = () => {
         data: groups,
         isLoading,
         error,
-    } = api.Groups.GetMatchingGroups.useQuery({ userInterests: interestData });
+    } = api.Groups.GetMatchingGroups.useQuery({ userInterests: interestData }, {
+        staleTime: 1000 * 60 * 2,
+    });
 
     // console.log("groups of my interest", groups);
 
