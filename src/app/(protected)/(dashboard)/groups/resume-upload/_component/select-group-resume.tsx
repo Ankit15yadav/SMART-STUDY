@@ -3,7 +3,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import { Check, ChevronsUpDown } from 'lucide-react';
-import React from 'react'
+import React, { Dispatch, SetStateAction } from 'react';
 
 interface Group {
     id: string;
@@ -13,50 +13,52 @@ interface Group {
     privateGroupInfo: string | null;
 }
 
-
-
 interface SelectGroupForResumeProps {
     groups: Group[];
+    selectedGroupId: Dispatch<SetStateAction<string | null>>;
 }
 
-const SelectGroupForResume = ({ groups }: SelectGroupForResumeProps) => {
-
-    const [open, setOpen] = React.useState(false)
-    const [value, setValue] = React.useState("")
+const SelectGroupForResume = ({ groups, selectedGroupId }: SelectGroupForResumeProps) => {
+    const [open, setOpen] = React.useState(false);
+    const [value, setValue] = React.useState("");
 
     return (
         <div>
-            <Popover open={open} onOpenChange={setOpen}
-
-            >
-
-                <PopoverTrigger asChild >
+            <Popover open={open} onOpenChange={setOpen}>
+                <PopoverTrigger asChild>
                     <Button
                         variant={'outline'}
-                        role='combobox'
+                        role="combobox"
                         aria-expanded={open}
-                        className='w-full justify-between'
+                        className="w-full justify-between"
                     >
-                        {
-                            value ? groups.find((group) => group.name === value)?.name : 'Select Group...'
-                        }
+                        {value
+                            ? groups.find((group) => group.name === value)?.name
+                            : 'Select Group...'}
                         <ChevronsUpDown className="opacity-50" />
                     </Button>
                 </PopoverTrigger>
-                <PopoverContent className='w-full p-0'>
+                {/* Setting the PopoverContent width to match the trigger */}
+                <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
                     <Command>
-                        <CommandInput placeholder='Search framework...' className='h-9 w-full' />
+                        {/* The full-width search input */}
+                        <CommandInput
+                            placeholder="Search framework..."
+                            className="h-9 w-full px-3"
+                        />
                         <CommandList>
-                            <CommandEmpty> No groups found.</CommandEmpty>
+                            <CommandEmpty>No groups found.</CommandEmpty>
                             <CommandGroup>
-                                {
-                                    groups.map((group) => (
+                                {groups.map((group) => (
+
+                                    !group.isPublic && (
                                         <CommandItem
                                             key={group.id}
                                             value={group.name}
                                             onSelect={(e) => {
-                                                setValue(e === value ? "" : e)
+                                                setValue(e === value ? "" : e);
                                                 setOpen(false);
+                                                selectedGroupId(group.id);
                                             }}
                                         >
                                             {group.name}
@@ -67,8 +69,9 @@ const SelectGroupForResume = ({ groups }: SelectGroupForResumeProps) => {
                                                 )}
                                             />
                                         </CommandItem>
-                                    ))
-                                }
+                                    )
+
+                                ))}
                             </CommandGroup>
                         </CommandList>
                     </Command>

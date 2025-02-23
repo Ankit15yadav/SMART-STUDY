@@ -36,16 +36,16 @@ const ChatPage = () => {
     const { user } = useUser();
     const userId = user?.id || "";
 
-    // Get the groups from your TRPC query
-    const { data: getJoinedGroups, isLoading } = api.Groups.getJoinedGroups.useQuery();
-    // Use a local state variable to allow reordering
+    const { data: getJoinedGroups, isLoading } = api.Groups.getJoinedGroups.useQuery(undefined, {
+        staleTime: 1000 * 60 * 60 * 24,
+    });
+
     const [groups, setGroups] = useState<Group[]>([]);
     const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
     const [message, setMessage] = useState('');
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    // State for the temporary group info message
     const [showMessage, setShowMessage] = useState(true);
     const [hideMessage, setHideMessage] = useState(false);
 

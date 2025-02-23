@@ -44,7 +44,12 @@ const ResumeUploader = () => {
     const [storedResume, setStoredResume] = useLocalStorageState<string>("userResume")
     const [chatMessage, setChatMessage] = useState("")
     const [chatHistory, setChatHistory] = useState<Array<{ question: string; answer: string }>>([])
+    const [groupId, selectedGroupId] = useState<string | null>(null)
 
+
+    const particularGroup = groups?.find((group) => group.id === groupId);
+
+    console.log(particularGroup);
 
     const onDrop = useCallback((acceptedFiles: File[]) => {
         const selectedFile = acceptedFiles[0]
@@ -183,7 +188,7 @@ const ResumeUploader = () => {
                             </CardDescription>
 
                             {groups && !isLoading ? (
-                                <SelectGroupForResume groups={groups} />
+                                <SelectGroupForResume groups={groups} selectedGroupId={selectedGroupId} />
                             ) : (
                                 <div className="flex justify-center">
                                     <div className="text-muted-foreground">Loading groups...</div>

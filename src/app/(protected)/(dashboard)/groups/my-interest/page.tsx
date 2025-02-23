@@ -10,8 +10,9 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 
 const AllGroupsBasedOnInterest = () => {
     // Fetch the user's interests and split them into an array
-    const { data: interests } = api.Groups.getUserInterest.useQuery();
+    const { data: interests, refetch } = api.Groups.getUserInterest.useQuery();
     const interestData = interests?.split(',').map((int) => int.trim()) || [];
+
 
     const {
         data: groups,
@@ -20,6 +21,9 @@ const AllGroupsBasedOnInterest = () => {
     } = api.Groups.GetMatchingGroups.useQuery({ userInterests: interestData }, {
         staleTime: 1000 * 60 * 2,
     });
+
+
+    // console.log(groups);
 
     // console.log("groups of my interest", groups);
 

@@ -36,9 +36,10 @@ const Interests = () => {
             {
                 onSuccess: () => {
                     toast.success('Interests added successfully')
+
                     setIsLoading(false)
                     // redirect('/')
-                    router.push("/")
+                    router.push("/groups/my-interest")
                 },
                 onError: (error) => {
                     console.log(error);

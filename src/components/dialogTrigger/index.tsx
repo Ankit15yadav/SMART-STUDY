@@ -319,7 +319,7 @@ const DialogOpen = ({ group }: GroupCardProps) => {
                                             ?
                                             (<div className='flex gap-x-2 items-center'>
                                                 <Rocket className="w-5 h-5 mr-2" />
-                                                Processing... Please Wait
+                                                Processing...
                                             </div>)
                                             :
                                             (<div className='flex gap-x-2 items-center'>
