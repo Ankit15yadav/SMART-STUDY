@@ -1,31 +1,40 @@
 'use client'
-import { useSocket } from '@/context/SocketProvider';
-import React, { useEffect } from 'react'
-import io from "socket.io-client"
+import React from 'react'
+// import classes from "./page.module.css"
+import { useSocket } from '@/context/SocketProvider'
 
 type Props = {}
 
-const socket = io("http://localhost:8000");
+const HomePage = (props: Props) => {
 
-const TestingSocket = (props: Props) => {
-
-    const { sendMessage } = useSocket();
-
-    useEffect(() => {
-        socket.on("message", (data) => {
-            console.log(data);
-        })
-
-        return () => {
-            socket.disconnect();
-        }
-    }, [])
+    const { sendMessage, messages } = useSocket()
+    const [message, setMessage] = React.useState("")
 
     return (
         <div>
+            <div>
+                <input
+                    //   className={classes["chat-input"]}
+                    placeholder='Message..'
+                    value={message}
 
+                    onChange={(e) => setMessage(e.target.value)}
+                />
+                <button
+                    //   className={classes["button"]}
+                    onClick={(e) => { sendMessage(message); setMessage("") }}
+                >send</button>
+            </div>
+            <div>
+                <h1>All Messages will appear here</h1>
+                {
+                    messages.map((msg, index) => (
+                        <li key={index}>{msg}</li>
+                    ))
+                }
+            </div>
         </div>
     )
 }
 
-export default TestingSocket
+export default HomePage
