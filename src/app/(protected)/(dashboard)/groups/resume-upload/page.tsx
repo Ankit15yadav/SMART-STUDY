@@ -288,22 +288,23 @@ const ResumeUploader = () => {
                                                     </span>
                                                 </div>
                                             ) : (
-                                                <div className='flex-1 min-h-0 max-w-full overflow-x-auto'>
-                                                    <MDEditor.Markdown
-                                                        style={{
-                                                            padding: '10px',
-                                                            height: '100%',
-                                                            backgroundColor: '#0f172a',
-                                                            overflowX: 'auto',  // Horizontal scrolling for code blocks   // Constrain width to container
-                                                            overflowWrap: 'break-word',    // Add this
-                                                            wordBreak: 'break-all',
-                                                            width: '100%'     // Add this
+                                                <div className='flex-grow overflow-hidden py-2 w-full'>
+                                                    {/* Content wrapper with proper height constraints */}
+                                                    <div className='h-full flex flex-col gap-4'>
+                                                        {/* Markdown section with controlled height */}
+                                                        <div className='flex-1 min-h-0'>
+                                                            <MDEditor.Markdown
+                                                                style={{
+                                                                    padding: '10px',
+                                                                    height: '100%',
+                                                                    maxWidth: '100%',
 
-                                                        }}
-                                                        source={chat.answer}
-                                                        className='h-full w-fit rounded-md border'
-                                                        skipHtml
-                                                    />
+                                                                }}
+                                                                source={chat.answer}
+                                                                className='w-full h-full overflow-auto rounded-md border'
+                                                            />
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             )}
                                         </div>

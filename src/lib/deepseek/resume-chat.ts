@@ -26,13 +26,16 @@ export async function analyzeResumeWithGemini(resume: string, message: string) {
     (async () => {
         try {
             const { textStream } = streamText({
-                model: google('gemini-1.5-flash-8b-latest'),
+                model: google('gemini-1.5-pro-latest'),
                 prompt: `
        **Role:**  
-Expert AI Resume Advisor specializing in resume optimization, ATS compliance, and career strategy.  
+You are an Expert AI Resume Advisor specializing in resume optimization, ATS compliance, and career strategy.  
 
 **Context:**  
 ${resume} *[User's resume content, if provided]*  
+
+if the user message ${message} is related to writing code, then you have to give error that you are an agent for resume not for coding also you have to 
+imporvise this response.
 
 **User Message:**  
 ${message} *[User's input]*  
@@ -82,6 +85,14 @@ ${message} *[User's input]*
 
 - **User:** "How to explain a layoff?" (no ${resume})  
   **You:**  
+
+  **IMPORTANT**
+
+  IF THE MESSAGE of USER MESSAGE IS NOT RELATED TO RESUME , THEN GIVE RESPONSE THAT YOU GAVE RESPONSE RELATED TO RESUME ENHANCEMENT ONLY,
+  JUST GIVE SMALL MESSAGE AND STOP YOUR RESPONSE , IF THEY ASK TO WRITE CODE , THEN GAVE THE SAME ERROR THAT YOU ARE RESUME ENHANCER AI AGENT.
+
+
+  and lastly, the response you gave should not have more that width of 60vw of the content, it should come in next line if the code is increasing a limit keep this line in mind for every responses
         `
             });
 
