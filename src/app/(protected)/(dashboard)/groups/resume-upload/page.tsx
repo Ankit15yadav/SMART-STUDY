@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useRef, useEffect } from "react"
 import useLocalStorageState from "use-local-storage-state"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -20,11 +20,14 @@ import {
 import { useDropzone } from "react-dropzone"
 import { toast } from "sonner"
 import { api } from "@/trpc/react"
-import { group } from "console"
 import SelectGroupForResume from "./_component/select-group-resume"
+import { analyzeResumeWithGemini, FinalRespone } from "@/lib/deepseek/resume-chat"
+import MDEditor from "@uiw/react-md-editor"
+import { readStreamableValue } from "ai/rsc"
+import { cosineSimilarity } from "ai"
+
 
 const ResumeUploader = () => {
-
     const { data: interests } = api.Groups.getUserInterest.useQuery();
     const interestData = interests?.split(',').map((int) => int.trim()) || [];
 
@@ -35,8 +38,6 @@ const ResumeUploader = () => {
         staleTime: 1000 * 60 * 2,
     });
 
-    // console.log(groups);
-
     const [file, setFile] = useState<File | null>(null)
     const [uploading, setUploading] = useState(false)
     const [error, setError] = useState<string | null>(null)
@@ -45,11 +46,11 @@ const ResumeUploader = () => {
     const [chatMessage, setChatMessage] = useState("")
     const [chatHistory, setChatHistory] = useState<Array<{ question: string; answer: string }>>([])
     const [groupId, selectedGroupId] = useState<string | null>(null)
-
-
+    const [isProcessing, setIsProcessing] = useState(false);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
     const particularGroup = groups?.find((group) => group.id === groupId);
 
-    console.log(particularGroup);
+
 
     const onDrop = useCallback((acceptedFiles: File[]) => {
         const selectedFile = acceptedFiles[0]
@@ -66,6 +67,12 @@ const ResumeUploader = () => {
             }
         }
     }, [])
+
+    useEffect(() => {
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: "smooth", block: "end" })
+        }
+    })
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
@@ -106,20 +113,62 @@ const ResumeUploader = () => {
         }
     }
 
-    const handleChatSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
-        if (!chatMessage.trim()) return
+    const handleChatSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!chatMessage.trim()) return;
 
-        // Temporary mock response
+        // Add user message immediately with loading state
+        const userQuestion = chatMessage;
+        const messageIndex = chatHistory.length;
+
         setChatHistory((prev) => [
             ...prev,
             {
-                question: chatMessage,
-                answer:
-                    "AI analysis feature coming soon! We'll analyze your resume for keywords, suggestions, and career advice.",
+                question: userQuestion,
+                answer: "Loading..." // Temporary loading message
             },
-        ])
-        setChatMessage("")
+        ]);
+        setChatMessage(""); // Clear input field immediately
+        setIsProcessing(true);
+
+        try {
+            // Initialize an empty string for this specific message's answer
+            let currentAnswer = "";
+
+            const output = await FinalRespone(storedResume!, userQuestion);
+
+            for await (const delta of readStreamableValue(output)) {
+                if (delta) {
+                    // Update the current answer with new delta
+                    currentAnswer += delta;
+
+                    // Update the specific message in chat history with the current accumulated answer
+                    setChatHistory(prev => {
+                        const updatedHistory = [...prev];
+                        updatedHistory[messageIndex] = {
+                            question: userQuestion,
+                            answer: currentAnswer // Use the accumulated answer for this message
+                        };
+                        return updatedHistory;
+                    });
+                }
+            }
+        } catch (error) {
+            console.error("Error processing request:", error);
+
+            // Update with error message
+            setChatHistory(prev => {
+                const updatedHistory = [...prev];
+                updatedHistory[messageIndex] = {
+                    question: userQuestion,
+                    answer: "Sorry, there was an error processing your request."
+                };
+                return updatedHistory;
+            });
+            toast.error("Error while fetching resume details");
+        } finally {
+            setIsProcessing(false);
+        }
     }
 
     return (
@@ -194,9 +243,7 @@ const ResumeUploader = () => {
                                     <div className="text-muted-foreground">Loading groups...</div>
                                     <Loader2 className="animate-spin" />
                                 </div>
-
                             )}
-
                         </div>
                     </CardContent>
                 </Card>
@@ -213,15 +260,55 @@ const ResumeUploader = () => {
                         </div>
                     </CardHeader>
                     <CardContent className="flex-grow">
-                        <ScrollArea className="h-[400px] pr-4">
+                        <ScrollArea className="h-[500px] pr-4 min-w-full">
                             {chatHistory.map((chat, index) => (
                                 <div key={index} className="space-y-4 mb-4">
-                                    <div className="flex justify-end">
-                                        <div className="bg-primary text-primary-foreground rounded-md px-3 py-1 max-w-[80%]">{chat.question}</div>
+                                    <div className="flex justify-start">
+                                        <div className="bg-primary text-primary-foreground flex flex-wrap rounded-md px-3 py-1 max-w-[70%]">{chat.question}</div>
                                     </div>
                                     <div className="flex justify-start">
-                                        <div className="bg-muted rounded-lg p-4 max-w-[80%]">{chat.answer}</div>
+                                        <div className="rounded-md  py-1 w-full">
+                                            {chat.answer === "Loading..." ? (
+                                                <div className="flex items-center">
+                                                    <span className="flex items-center justify-center p-2">
+                                                        {/* First dot - grows and shrinks */}
+                                                        <span className="inline-block h-2 w-2 bg-gray-500 rounded-full mx-0.5 transform transition-all duration-700"
+                                                            style={{ animation: "pulse 1.4s cubic-bezier(0.4, 0, 0.6, 1) infinite", animationDelay: "0ms" }}>
+                                                        </span>
+
+                                                        {/* Second dot - fades in and out */}
+                                                        <span className="inline-block h-2 w-2 bg-gray-500 rounded-full mx-0.5 transition-opacity duration-700"
+                                                            style={{ animation: "fade 1.4s ease-in-out infinite", animationDelay: "200ms" }}>
+                                                        </span>
+
+                                                        {/* Third dot - slides up and down */}
+                                                        <span className="inline-block h-2 w-2 bg-gray-500 rounded-full mx-0.5 transition-transform duration-700"
+                                                            style={{ animation: "bounce 1.4s ease infinite", animationDelay: "400ms" }}>
+                                                        </span>
+                                                    </span>
+                                                </div>
+                                            ) : (
+                                                <div className='flex-1 min-h-0 max-w-full overflow-x-auto'>
+                                                    <MDEditor.Markdown
+                                                        style={{
+                                                            padding: '10px',
+                                                            height: '100%',
+                                                            backgroundColor: '#0f172a',
+                                                            overflowX: 'auto',  // Horizontal scrolling for code blocks   // Constrain width to container
+                                                            overflowWrap: 'break-word',    // Add this
+                                                            wordBreak: 'break-all',
+                                                            width: '100%'     // Add this
+
+                                                        }}
+                                                        source={chat.answer}
+                                                        className='h-full w-fit rounded-md border'
+                                                        skipHtml
+                                                    />
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
+                                    <div ref={messagesEndRef} />
                                 </div>
                             ))}
                         </ScrollArea>
@@ -233,8 +320,11 @@ const ResumeUploader = () => {
                                 onChange={(e) => setChatMessage(e.target.value)}
                                 placeholder="Ask about resume improvements..."
                             />
-                            <Button type="submit" className="shrink-0">
-                                Send
+                            <Button
+                                type="submit"
+                                className="shrink-0"
+                                disabled={chatMessage === "" || isProcessing}>
+                                {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : "Send"}
                             </Button>
                         </form>
                     </CardFooter>
@@ -245,3 +335,4 @@ const ResumeUploader = () => {
 }
 
 export default ResumeUploader
+

@@ -10,7 +10,6 @@ import { ArrowRight, Loader2 } from 'lucide-react'
 import { api } from '@/trpc/react'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
 import { ScrollArea } from '@/components/ui/scroll-area'
 
 

@@ -3,8 +3,9 @@ import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import fs from "fs";
 import path from "path";
 import { AiBasedGroupJoining } from "./deepseek/demo-chat";
+import { doc } from "prettier";
 
-const localPdfPath = path.join("/tmp", "nike10k.pdf");
+const localPdfPath = path.join("/tmp", "smart-study.pdf");
 
 async function downloadPDF(url: string, outputPath: string) {
     const response = await fetch(url);
@@ -30,7 +31,26 @@ export async function processPDF(userResume: string, tags: string[], interests: 
 
     const aiResponse = await AiBasedGroupJoining(docs[0]?.pageContent, tags, interests);
 
-    console.log("AI Response Verdict:", aiResponse.verdict);
+    // console.log("AI Response Verdict:", aiResponse.verdict);
 
     return aiResponse;
 }
+
+export async function parsePdfFromUrl(userResume: string) {
+    await downloadPDF(userResume, localPdfPath);
+
+    console.log(userResume);
+
+    const loader = new PDFLoader(localPdfPath);
+
+    const docs = await loader.load();
+
+    if (!docs || docs.length === 0) {
+        console.error("No document loaded from PDFLoader.");
+        return null;
+    }
+
+    return docs[0]?.pageContent;
+}
+
+// await parsePdfFromUrl('https://res.cloudinary.com/dxlwayr30/image/upload/v1739779129/smart_study/f9cxrjabp2edzz7hbd7k.pdf');

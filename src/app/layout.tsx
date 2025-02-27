@@ -2,6 +2,7 @@ import "@/styles/globals.css";
 
 import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
+import { ThemeProvider } from "next-themes";
 
 import { TRPCReactProvider } from "@/trpc/react";
 import { ClerkProvider } from "@clerk/nextjs";
@@ -20,16 +21,20 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <SocketProvider>
-        <html suppressHydrationWarning lang="en" className={`${GeistSans.variable}`}>
+        <html
+          suppressHydrationWarning
+          lang="en"
+          className={`${GeistSans.variable}`}
+        >
           <body>
-            <TRPCReactProvider>{children}</TRPCReactProvider>
-            <Toaster />
-
+            {/* It’s a good idea to add the attribute prop so that theme changes are handled via a CSS class */}
+            <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+              <TRPCReactProvider>{children}</TRPCReactProvider>
+              <Toaster />
+            </ThemeProvider>
           </body>
         </html>
       </SocketProvider>
-
     </ClerkProvider>
-
   );
 }
