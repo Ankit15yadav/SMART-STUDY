@@ -1,5 +1,6 @@
 import { Server } from "socket.io"
 import Redis from "ioredis";
+import { produceMessage } from "./kafka";
 
 const pub = new Redis({
     host: 'valkey-12a88d4b-yadavankit97620-d80a.h.aivencloud.com',
@@ -66,14 +67,22 @@ class SocketService {
 
         sub.on('message', async (channel, mes) => {
             if (channel === 'MESSAGES') {
-                // console.log("new message from redis", mes)
-                const { groupId } = JSON.parse(mes)
-                io.to(groupId).emit('message', mes)
-                // console.log(`Message sent to group ${groupId} from user ${userId}: ${message}`);
-                // await produceMessage(mes);
-                // console.log("Message produce to kafka broker");
+                const message = JSON.parse(mes);
+
+                // Structure message for Kafka with required fields
+                const kafkaMessage = {
+                    groupId: message.groupId,
+                    senderId: message.senderId,
+                    content: message.content,
+                    createdAt: new Date().toISOString()
+                };
+
+                // console.log('Forwarding to Kafka:', kafkaMessage);
+                await produceMessage(JSON.stringify(kafkaMessage));
+
+                io.to(message.groupId).emit('message', JSON.stringify(kafkaMessage));
             }
-        })
+        });
     }
 }
 

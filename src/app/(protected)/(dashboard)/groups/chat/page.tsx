@@ -155,7 +155,7 @@ const ChatPage = () => {
                             <div className="flex-1 overflow-hidden">
                                 <ScrollArea className="h-[calc(100vh-160px)] p-4">
                                     <div className="space-y-4">
-                                        {messagess.map((msg) => (
+                                        {messagess.filter((msg) => msg.groupId === selectedGroup?.id).map((msg) => (
                                             <div
                                                 key={`${msg.content}+${msg.id}+${msg.createdAt}`}
                                                 className={`flex ${msg.senderId === userId ? "justify-end" : "justify-start"}`}
