@@ -9,20 +9,10 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { useUser } from '@clerk/nextjs'
 import io from "socket.io-client";
+import { useSocket } from '@/context/SocketProvider'
 
 // const socket = io("http://localhost:4000");
-const socket = io("http://192.168.1.2:4000");
-
-interface Message {
-    id: string;
-    content: string;
-    senderId: string;
-    createdAt: Date;
-    sender?: {
-        firstName: string | null;
-        lastName: string | null;
-    };
-}
+// const socket = io("http://192.168.1.2:4000");
 
 interface Group {
     id: string;
@@ -36,14 +26,15 @@ const ChatPage = () => {
     const { user } = useUser();
     const userId = user?.id || "";
 
-    const { data: getJoinedGroups, isLoading } = api.Groups.getJoinedGroups.useQuery(undefined, {
+    const { data: getJoinedGroups, isLoading, } = api.Groups.getJoinedGroups.useQuery(undefined, {
         staleTime: 1000 * 60 * 60 * 24,
     });
 
+    const { joinGroup, sendMessage, messagess } = useSocket();
+
+
     const [groups, setGroups] = useState<Group[]>([]);
-    const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
-    const [messages, setMessages] = useState<Message[]>([]);
-    const [message, setMessage] = useState('');
+    const [selectedGroup, setSelectedGroup] = useState<Group | null>(null); const [message, setMessage] = useState('');
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const [showMessage, setShowMessage] = useState(true);
@@ -88,47 +79,23 @@ const ChatPage = () => {
         };
     }, [selectedGroup]);
 
-    // Socket.io handlers for messages
-    useEffect(() => {
-        socket.on("previousMessages", (msgs: Message[]) => {
-            setMessages(msgs);
-        });
-
-        socket.on("newMessage", (msg: Message) => {
-            setMessages((prev) => [...prev, msg]);
-        });
-
-        return () => {
-            socket.off("previousMessages");
-            socket.off("newMessage");
-        };
-    }, []);
-
-    // Auto-scroll to the bottom when messages update
     useEffect(() => {
         if (messagesEndRef.current) {
             messagesEndRef.current.scrollIntoView({ behavior: "instant", block: "end" });
         }
-    }, [messages]);
+    }, [messagess]);
 
     // When joining a group, emit the join event
     const handleJoinGroup = (group: Group) => {
         setSelectedGroup(group);
-        socket.emit("joinGroup", {
-            groupId: group.id,
-            userId: userId,
-        });
+        joinGroup(group.id, userId)
     };
 
     // When sending a message, emit the message and then reorder the groups
     const handleSendMessage = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (message.trim() && selectedGroup?.id && userId) {
-            socket.emit("sendMessage", {
-                groupId: selectedGroup.id,
-                senderId: userId,
-                content: message,
-            });
+            sendMessage(message, selectedGroup.id, userId)
             setMessage('');
 
             // Reorder the groups so that the selected group moves to the top
@@ -151,7 +118,7 @@ const ChatPage = () => {
                             <div key={group.id} onClick={() => handleJoinGroup(group)}>
                                 <GroupChatCard
                                     group={group}
-                                    messages={messages}
+                                    messages={messagess}
                                     selectedGroupid={selectedGroup?.id || ''}
                                 />
                             </div>
@@ -188,9 +155,9 @@ const ChatPage = () => {
                             <div className="flex-1 overflow-hidden">
                                 <ScrollArea className="h-[calc(100vh-160px)] p-4">
                                     <div className="space-y-4">
-                                        {messages.map((msg) => (
+                                        {messagess.map((msg) => (
                                             <div
-                                                key={msg.id}
+                                                key={`${msg.content}+${msg.id}+${msg.createdAt}`}
                                                 className={`flex ${msg.senderId === userId ? "justify-end" : "justify-start"}`}
                                             >
                                                 <div className={`p-3 rounded-lg max-w-[75%] ${msg.senderId === userId
@@ -199,8 +166,7 @@ const ChatPage = () => {
                                                 >
                                                     {msg.senderId !== userId && (
                                                         <p className="text-xs text-gray-600 mb-1">
-                                                            {msg.sender?.firstName || "Unknown User"}{" "}
-                                                            {msg.sender?.lastName || ""}
+                                                            {msg.id || "Unknown User"}{" "}
                                                         </p>
                                                     )}
                                                     <p>{msg.content}</p>

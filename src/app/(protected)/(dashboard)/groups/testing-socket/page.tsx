@@ -7,7 +7,7 @@ type Props = {}
 
 const HomePage = (props: Props) => {
 
-    const { sendMessage, messages } = useSocket()
+    const { sendMessage, messagess } = useSocket()
     const [message, setMessage] = React.useState("")
 
     return (
@@ -28,8 +28,8 @@ const HomePage = (props: Props) => {
             <div>
                 <h1>All Messages will appear here</h1>
                 {
-                    messages.map((msg, index) => (
-                        <li key={index}>{msg}</li>
+                    messagess.map((msg, index) => (
+                        <li key={index}>{msg.content}</li>
                     ))
                 }
             </div>

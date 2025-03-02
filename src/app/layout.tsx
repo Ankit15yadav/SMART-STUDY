@@ -28,7 +28,7 @@ export default function RootLayout({
         >
           <body>
             {/* It’s a good idea to add the attribute prop so that theme changes are handled via a CSS class */}
-            <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+            <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
               <TRPCReactProvider>{children}</TRPCReactProvider>
               <Toaster />
             </ThemeProvider>

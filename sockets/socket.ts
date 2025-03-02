@@ -40,12 +40,22 @@ class SocketService {
         io.on("connect", (socket) => {
             console.log(`New socket connected ${socket.id}`)
 
+            socket.on('joinGroup', ({ groupId, userId }: { groupId: string, userId: string }) => {
+                socket.join(groupId)
+                // console.log(`user ${userId} joined group ${groupId}`)
+            })
 
-            socket.on('event:message', async ({ message }: { message: string }) => {
-                // console.log(`New message received: ${message}`)
+            socket.on('event:message', async ({ message, groupId, userId }: { message: string, groupId: string, userId: string }) => {
+                // console.log(`New message received: ${message} , ${groupId}`)
 
                 //publis msg to redis
-                await pub.publish('MESSAGES', JSON.stringify({ message }));
+                // In your backend socket service (when publishing messages)
+                await pub.publish('MESSAGES', JSON.stringify({        // From database
+                    content: message,
+                    senderId: userId,
+                    createdAt: new Date(),
+                    groupId,
+                }));
             })
 
 
@@ -57,7 +67,9 @@ class SocketService {
         sub.on('message', async (channel, mes) => {
             if (channel === 'MESSAGES') {
                 // console.log("new message from redis", mes)
-                io.emit('1', mes)
+                const { groupId } = JSON.parse(mes)
+                io.to(groupId).emit('message', mes)
+                // console.log(`Message sent to group ${groupId} from user ${userId}: ${message}`);
                 // await produceMessage(mes);
                 // console.log("Message produce to kafka broker");
             }

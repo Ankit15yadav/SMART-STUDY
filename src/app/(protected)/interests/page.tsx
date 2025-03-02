@@ -37,7 +37,6 @@ const Interests = () => {
                     toast.success('Interests added successfully')
                     setIsLoading(false)
                     // redirect('/')
-                    router.push("/")
                 },
                 onError: (error) => {
                     console.log(error);
