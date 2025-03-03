@@ -6,7 +6,6 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, Di
 import { Label } from "../ui/label"
 import { Input } from "../ui/input"
 import { Textarea } from "../ui/textarea"
-import { processPDF } from '@/lib/resume-loader'
 import { toast } from 'sonner'
 import Link from "next/link";
 import { AlertTriangle } from "lucide-react";
@@ -14,7 +13,6 @@ import useLocalStorageState from "use-local-storage-state";
 import { useRouter } from 'next/navigation'
 import { api } from '@/trpc/react'
 import useRefetch from '@/hooks/use-refetch'
-import { groupCollapsed } from 'console'
 
 interface GroupCardProps {
     group: {
@@ -36,6 +34,13 @@ interface GroupCardProps {
     }
 }
 
+interface privateForm {
+    studyPreference: string,
+    learningGoals: string,
+    linkedinUrl: string,
+    githubUrl: string,
+}
+
 const DialogOpen = ({ group }: GroupCardProps) => {
     // Log the entire group object at the start for debugging
     // console.log("Group prop received:", group)
@@ -43,6 +48,13 @@ const DialogOpen = ({ group }: GroupCardProps) => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [userResume] = useLocalStorageState<string>('userResume');
     const [isLoading, setIsLoading] = useState(false);
+    const [privateModal, setPrivateModel] = useState<privateForm>({
+        githubUrl: '',
+        linkedinUrl: '',
+        studyPreference: '',
+        learningGoals: '',
+    })
+
     const joinGroups = api.Groups.JoinGroup.useMutation();
     const reftech = useRefetch();
 
@@ -81,27 +93,43 @@ const DialogOpen = ({ group }: GroupCardProps) => {
     const handlePrivateGroupJoin = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        setIsLoading(true)
-
-        try {
-            const result = await processPDF(userResume!, group.tags, group.privateGroupInfo || "");
-
-            if (result?.verdict === "Approved") {
-                await joinGroup(group.id);
-
-                toast.success("Profile accepted,  Joining group process initiated.");
-            }
-
-            if (result?.verdict === "Rejected") {
-                toast.error("Profile rejected,  Please update your Profile More.");
-            }
-        } catch (error) {
-            toast.error("Error in AI generation");
-        }
-        finally {
-            setIsLoading(false)
-        }
+        console.log(privateModal);
     };
+    // const handlePrivateGroupJoin = async (e: React.FormEvent) => {
+    //     e.preventDefault();
+
+    //     setIsLoading(true)
+
+    //     try {
+    //         const result = await processPDF(userResume!, group.tags, group.privateGroupInfo || "");
+
+    //         if (result?.verdict === "Approved") {
+    //             await joinGroup(group.id);
+
+    //             toast.success("Profile accepted,  Joining group process initiated.");
+    //         }
+
+    //         if (result?.verdict === "Rejected") {
+    //             toast.error("Profile rejected,  Please update your Profile More.");
+    //         }
+    //     } catch (error) {
+    //         toast.error("Error in AI generation");
+    //     }
+    //     finally {
+    //         setIsLoading(false)
+    //     }
+    // };
+
+
+    const handlePrivateGroupModalContentChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target
+
+        setPrivateModel(prev => ({
+            ...prev,
+            [name]: value,
+        }))
+    }
+
 
     return (
         <Dialog>
@@ -258,8 +286,11 @@ const DialogOpen = ({ group }: GroupCardProps) => {
                                 <div className="col-span-3">
                                     <Input
                                         id="interests"
+                                        name='learningGoals'
                                         placeholder="Web Development, Machine Learning, UI/UX Design..."
                                         className="w-full"
+                                        value={privateModal.learningGoals}
+                                        onChange={handlePrivateGroupModalContentChange}
                                         required
                                     />
                                 </div>
@@ -275,7 +306,10 @@ const DialogOpen = ({ group }: GroupCardProps) => {
                                         id="collaboration"
                                         placeholder={`I'm looking to collaborate on...\nI learn best through...`}
                                         rows={3}
+                                        name='studyPreference'
                                         className="resize-none"
+                                        onChange={handlePrivateGroupModalContentChange}
+                                        value={privateModal.studyPreference}
                                         required
                                     />
                                 </div>
@@ -291,12 +325,18 @@ const DialogOpen = ({ group }: GroupCardProps) => {
                                         id="github"
                                         placeholder="GitHub Profile URL"
                                         className="w-full"
+                                        name='githubUrl'
+                                        value={privateModal.githubUrl}
+                                        onChange={handlePrivateGroupModalContentChange}
                                         required
                                     />
                                     <Input
                                         id="linkedin"
                                         placeholder="LinkedIn Profile URL"
                                         className="w-full"
+                                        name='linkedinUrl'
+                                        value={privateModal.linkedinUrl}
+                                        onChange={handlePrivateGroupModalContentChange}
                                         required
                                     />
                                 </div>
