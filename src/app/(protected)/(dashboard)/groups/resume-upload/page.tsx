@@ -7,15 +7,22 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Separator } from "@/components/ui/separator"
+import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
     RocketIcon,
     UploadIcon,
     FileTextIcon,
-    MessageCircleIcon as ChatBubbleIcon,
+    MessageCircleIcon,
     UploadCloudIcon,
     FileIcon,
-    Loader,
     Loader2,
+    SendIcon,
+    CheckCircleIcon,
+    AlertCircleIcon,
+    UserIcon,
+    BotIcon
 } from "lucide-react"
 import { useDropzone } from "react-dropzone"
 import { toast } from "sonner"
@@ -25,7 +32,6 @@ import { analyzeResumeWithGemini, FinalRespone } from "@/lib/deepseek/resume-cha
 import MDEditor from "@uiw/react-md-editor"
 import { readStreamableValue } from "ai/rsc"
 import { cosineSimilarity } from "ai"
-
 
 const ResumeUploader = () => {
     const { data: interests } = api.Groups.getUserInterest.useQuery();
@@ -45,12 +51,10 @@ const ResumeUploader = () => {
     const [storedResume, setStoredResume] = useLocalStorageState<string>("userResume")
     const [chatMessage, setChatMessage] = useState("")
     const [chatHistory, setChatHistory] = useState<Array<{ question: string; answer: string }>>([])
-    const [groupId, selectedGroupId] = useState<string | null>(null)
-    const [isProcessing, setIsProcessing] = useState(false);
-    const messagesEndRef = useRef<HTMLDivElement>(null);
-    const particularGroup = groups?.find((group) => group.id === groupId);
-
-
+    const [groupId, setSelectedGroupId] = useState<string | null>(null)
+    const [isProcessing, setIsProcessing] = useState(false)
+    const messagesEndRef = useRef<HTMLDivElement>(null)
+    const particularGroup = groups?.find((group) => group.id === groupId)
 
     const onDrop = useCallback((acceptedFiles: File[]) => {
         const selectedFile = acceptedFiles[0]
@@ -58,12 +62,15 @@ const ResumeUploader = () => {
             if (selectedFile.type !== "application/pdf") {
                 setError("Only PDF files are allowed.")
                 setFile(null)
+                toast.error("Only PDF files are allowed")
             } else if (selectedFile.size > 5 * 1024 * 1024) {
                 setError("File size must be less than 5MB")
                 setFile(null)
+                toast.error("File size must be less than 5MB")
             } else {
                 setError(null)
                 setFile(selectedFile)
+                toast.success("File selected successfully")
             }
         }
     }, [])
@@ -72,7 +79,7 @@ const ResumeUploader = () => {
         if (messagesEndRef.current) {
             messagesEndRef.current.scrollIntoView({ behavior: "smooth", block: "end" })
         }
-    })
+    }, [chatHistory])
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
@@ -84,6 +91,7 @@ const ResumeUploader = () => {
     const handleUpload = async () => {
         if (!file) {
             setError("Please select a PDF file first.")
+            toast.error("Please select a PDF file first")
             return
         }
 
@@ -104,6 +112,7 @@ const ResumeUploader = () => {
             if (!response.ok) throw new Error(data.error || "Upload failed.")
 
             setStoredResume(data.secureUrl)
+            setSuccessMessage("Resume uploaded successfully!")
             toast.success("Resume uploaded successfully!")
         } catch (err: any) {
             setError(err.message)
@@ -115,7 +124,13 @@ const ResumeUploader = () => {
 
     const handleChatSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!chatMessage.trim()) return;
+        if (!chatMessage.trim() || !storedResume) {
+            if (!storedResume) {
+                toast.error("Please upload your resume first")
+                return
+            }
+            return
+        }
 
         // Add user message immediately with loading state
         const userQuestion = chatMessage;
@@ -135,7 +150,7 @@ const ResumeUploader = () => {
             // Initialize an empty string for this specific message's answer
             let currentAnswer = "";
 
-            const output = await FinalRespone(storedResume!, userQuestion);
+            const output = await FinalRespone(storedResume, userQuestion);
 
             for await (const delta of readStreamableValue(output)) {
                 if (delta) {
@@ -172,168 +187,286 @@ const ResumeUploader = () => {
     }
 
     return (
-        <div className="min-h-screen bg-muted/40 p-4 sm:p-8 ">
-            {/* Set overall max-width to 8xl and use a 3-column grid on medium screens */}
-            <div className="max-w-8xl mx-auto grid gap-8 md:grid-cols-3">
-                {/* Resume Section takes 1 column */}
-                <Card className="h-full md:col-span-1">
-                    <CardHeader>
-                        <div className="flex items-center gap-3">
-                            <RocketIcon className="h-6 w-6 text-primary" />
-                            <div>
-                                <CardTitle>Resume Manager</CardTitle>
-                                <CardDescription>Upload and manage your professional resume</CardDescription>
+        <div className="min-h-screen bg-gradient-to-b from-primary/5 to-muted/40 p-4 sm:p-6">
+            <div className="max-w-8xl mx-auto space-y-6">
+                <div className="flex items-center justify-center">
+                    <Badge variant="outline" className="py-2 px-4 text-base font-medium gap-2 border-primary/30">
+                        <RocketIcon className="h-5 w-5 text-primary" />
+                        Resume Enhancement Hub
+                    </Badge>
+                </div>
+
+                <div className="grid gap-6 md:grid-cols-3">
+                    {/* Resume Management Panel */}
+                    <Card className="h-full md:col-span-1 shadow-md border-primary/20">
+                        <CardHeader className="bg-primary/5 rounded-t-lg">
+                            <div className="flex items-center gap-3">
+                                <div className="bg-primary/10 p-2 rounded-full">
+                                    <RocketIcon className="h-6 w-6 text-primary" />
+                                </div>
+                                <div>
+                                    <CardTitle>Resume Manager</CardTitle>
+                                    <CardDescription>Upload and optimize your professional profile</CardDescription>
+                                </div>
                             </div>
-                        </div>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                        <div className="space-y-4">
-                            <Label htmlFor="resume">Upload Resume (PDF)</Label>
-                            <div
-                                {...getRootProps()}
-                                className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${isDragActive ? "border-primary bg-primary/10" : "border-muted-foreground/25 hover:border-primary"
-                                    }`}
-                            >
-                                <input {...getInputProps()} />
-                                <UploadCloudIcon className="mx-auto h-12 w-12 text-muted-foreground" />
-                                <p className="mt-2 text-sm text-muted-foreground">
-                                    Drag & drop your resume here, or click to select a file
-                                </p>
-                                <p className="mt-1 text-xs text-muted-foreground">(Only PDF files up to 5MB are accepted)</p>
+                        </CardHeader>
+                        <CardContent className="space-y-6 pt-6">
+                            <div className="space-y-5">
+                                <div className="flex items-center justify-between">
+                                    <Label htmlFor="resume" className="text-base font-medium">Upload Resume</Label>
+                                    {file && (
+                                        <Badge variant="outline" className="text-xs">PDF Selected</Badge>
+                                    )}
+                                </div>
+
+                                <div
+                                    {...getRootProps()}
+                                    className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all duration-300 ${isDragActive
+                                        ? "border-primary bg-primary/10 scale-[0.98]"
+                                        : "border-muted-foreground/25 hover:border-primary hover:bg-primary/5"
+                                        }`}
+                                >
+                                    <input {...getInputProps()} />
+                                    <UploadCloudIcon className="mx-auto h-16 w-16 text-primary/60" />
+                                    <p className="mt-4 text-sm font-medium">
+                                        {isDragActive
+                                            ? "Drop your resume here..."
+                                            : "Drag & drop your resume here, or click to browse"
+                                        }
+                                    </p>
+                                    <p className="mt-2 text-xs text-muted-foreground">(PDF files up to 5MB)</p>
+                                </div>
+
+                                {file && (
+                                    <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg border border-border">
+                                        <FileIcon className="h-5 w-5 text-primary" />
+                                        <span className="text-sm font-medium truncate flex-1">{file.name}</span>
+                                        <Badge variant="secondary" className="text-xs">
+                                            {(file.size / (1024 * 1024)).toFixed(2)} MB
+                                        </Badge>
+                                    </div>
+                                )}
+
+                                {error && (
+                                    <div className="flex items-center gap-2 text-destructive text-sm">
+                                        <AlertCircleIcon className="h-4 w-4" />
+                                        <span>{error}</span>
+                                    </div>
+                                )}
+
+                                {successMessage && (
+                                    <div className="flex items-center gap-2 text-green-600 text-sm">
+                                        <CheckCircleIcon className="h-4 w-4" />
+                                        <span>{successMessage}</span>
+                                    </div>
+                                )}
+
+                                <div className="flex flex-col gap-3 pt-2">
+                                    <Button
+                                        onClick={handleUpload}
+                                        disabled={uploading || !file}
+                                        className="gap-2 w-full h-11 font-medium"
+                                        size="lg"
+                                    >
+                                        {uploading ? (
+                                            <>
+                                                <Loader2 className="h-5 w-5 animate-spin" />
+                                                Uploading Resume...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <UploadIcon className="h-5 w-5" />
+                                                Upload Resume
+                                            </>
+                                        )}
+                                    </Button>
+
+                                    {storedResume && (
+                                        <Button variant="outline" asChild className="w-full h-11">
+                                            <a
+                                                href={storedResume}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="gap-2 font-medium"
+                                            >
+                                                <FileTextIcon className="h-5 w-5 text-primary" />
+                                                View Current Resume
+                                            </a>
+                                        </Button>
+                                    )}
+                                </div>
                             </div>
-                            {file && (
-                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                    <FileIcon className="h-4 w-4" />
-                                    <span>{file.name}</span>
+
+                            <Separator className="my-4" />
+
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <Label className="text-base font-medium">Target Group</Label>
+                                    {particularGroup && (
+                                        <Badge variant="secondary" className="text-xs">
+                                            {particularGroup.name}
+                                        </Badge>
+                                    )}
+                                </div>
+
+                                {groups && !isLoading ? (
+                                    <SelectGroupForResume
+                                        groups={groups}
+                                        selectedGroupId={setSelectedGroupId}
+                                    />
+                                ) : (
+                                    <div className="flex justify-center items-center py-4">
+                                        <Loader2 className="h-6 w-6 text-primary animate-spin mr-2" />
+                                        <span className="text-sm">Loading available groups...</span>
+                                    </div>
+                                )}
+
+                                <div className="bg-primary/5 p-3 rounded-lg mt-4 text-sm">
+                                    <p className="font-medium text-primary mb-1">Pro Tip</p>
+                                    <p className="text-muted-foreground">
+                                        Select a target group to receive tailored resume optimization suggestions.
+                                    </p>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Chat Assistant Panel */}
+                    <Card className="flex flex-col h-full md:col-span-2 shadow-md border-primary/20">
+                        <CardHeader className="bg-primary/5 rounded-t-lg">
+                            <div className="flex items-center gap-3">
+                                <div className="bg-primary/10 p-2 rounded-full">
+                                    <MessageCircleIcon className="h-6 w-6 text-primary" />
+                                </div>
+                                <div>
+                                    <CardTitle>Resume Assistant</CardTitle>
+                                    <CardDescription>Get personalized guidance to enhance your resume</CardDescription>
+                                </div>
+                            </div>
+                        </CardHeader>
+
+                        <CardContent className="flex-grow p-0">
+                            {/* Welcome message if no chat history */}
+                            {chatHistory.length === 0 && (
+                                <div className="flex flex-col items-center justify-center h-full p-6 text-center space-y-4">
+                                    <div className="bg-primary/10 p-4 rounded-full">
+                                        <BotIcon className="h-12 w-12 text-primary" />
+                                    </div>
+                                    <h3 className="text-lg font-medium">Resume Assistant</h3>
+                                    <p className="text-muted-foreground max-w-md">
+                                        Upload your resume and start a conversation to get personalized feedback
+                                        and advice on how to optimize it for your target opportunities.
+                                    </p>
+                                    <div className="flex flex-wrap justify-center gap-2 pt-2">
+                                        <Badge variant="outline" className="py-1">
+                                            "Analyze my resume strengths"
+                                        </Badge>
+                                        <Badge variant="outline" className="py-1">
+                                            "Suggest improvements for tech roles"
+                                        </Badge>
+                                        <Badge variant="outline" className="py-1">
+                                            "How can I highlight my leadership?"
+                                        </Badge>
+                                    </div>
                                 </div>
                             )}
-                            <div className="flex flex-col gap-3">
-                                <Button onClick={handleUpload} disabled={uploading || !file} className="gap-2 w-full">
-                                    {uploading ? (
-                                        <>
-                                            <UploadIcon className="h-4 w-4 animate-pulse" />
-                                            Uploading...
-                                        </>
+
+                            {/* Chat messages */}
+                            {chatHistory.length > 0 && (
+                                <ScrollArea className="h-[550px] px-6 pt-6 pb-2">
+                                    <div className="space-y-6">
+                                        {chatHistory.map((chat, index) => (
+                                            <div key={index} className="space-y-4">
+                                                {/* User message */}
+                                                <div className="flex items-start gap-3 justify-end">
+                                                    <div className="bg-primary text-primary-foreground rounded-2xl rounded-tr-sm px-4 py-3 max-w-[80%] shadow-sm">
+                                                        <p>{chat.question}</p>
+                                                    </div>
+                                                    <Avatar className="h-8 w-8 bg-primary/10">
+                                                        <AvatarFallback className="bg-primary/10 text-primary">
+                                                            <UserIcon className="h-4 w-4" />
+                                                        </AvatarFallback>
+                                                    </Avatar>
+                                                </div>
+
+                                                {/* Assistant response */}
+                                                <div className="flex items-start gap-3">
+                                                    <Avatar className="h-8 w-8 bg-primary/10">
+                                                        <AvatarFallback className="bg-primary/10 text-primary">
+                                                            <BotIcon className="h-4 w-4" />
+                                                        </AvatarFallback>
+                                                    </Avatar>
+                                                    <div className="bg-muted rounded-2xl rounded-tl-sm px-4 py-3 max-w-[80%] shadow-sm">
+                                                        {chat.answer === "Loading..." ? (
+                                                            <div className="flex items-center py-2">
+                                                                <span className="flex items-center justify-center">
+                                                                    <span className="inline-block h-2 w-2 bg-primary/60 rounded-full mx-0.5 animate-bounce"
+                                                                        style={{ animationDelay: "0ms" }}>
+                                                                    </span>
+                                                                    <span className="inline-block h-2 w-2 bg-primary/60 rounded-full mx-0.5 animate-bounce"
+                                                                        style={{ animationDelay: "200ms" }}>
+                                                                    </span>
+                                                                    <span className="inline-block h-2 w-2 bg-primary/60 rounded-full mx-0.5 animate-bounce"
+                                                                        style={{ animationDelay: "400ms" }}>
+                                                                    </span>
+                                                                </span>
+                                                            </div>
+                                                        ) : (
+                                                            <div className="markdown-content">
+                                                                <MDEditor.Markdown
+                                                                    style={{
+                                                                        padding: '0',
+                                                                        backgroundColor: 'transparent',
+                                                                        color: 'dimgray',
+                                                                        width: '100%'
+                                                                    }}
+                                                                    source={chat.answer}
+                                                                    className="w-full bg-transparent"
+                                                                />
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                        <div ref={messagesEndRef} />
+                                    </div>
+                                </ScrollArea>
+                            )}
+                        </CardContent>
+
+                        <CardFooter className="p-4 border-t">
+                            <form onSubmit={handleChatSubmit} className="w-full flex gap-2">
+                                <Input
+                                    value={chatMessage}
+                                    onChange={(e) => setChatMessage(e.target.value)}
+                                    placeholder={!storedResume
+                                        ? "Upload your resume to start chatting..."
+                                        : "Ask about resume improvements..."}
+                                    className="h-12 px-4"
+                                    disabled={!storedResume || isProcessing}
+                                />
+                                <Button
+                                    type="submit"
+                                    className="h-12 px-4 gap-2"
+                                    disabled={!chatMessage.trim() || !storedResume || isProcessing}
+                                >
+                                    {isProcessing ? (
+                                        <Loader2 className="h-5 w-5 animate-spin" />
                                     ) : (
                                         <>
-                                            <UploadIcon className="h-4 w-4" />
-                                            Upload Resume
+                                            <SendIcon className="h-5 w-5" />
+                                            <span className="hidden sm:inline">Send</span>
                                         </>
                                     )}
                                 </Button>
-                                {storedResume && (
-                                    <Button variant="outline" asChild className="w-full">
-                                        <a href={storedResume} target="_blank" rel="noopener noreferrer" className="gap-2">
-                                            <FileTextIcon className="h-4 w-4" />
-                                            View Current Resume
-                                        </a>
-                                    </Button>
-                                )}
-                            </div>
-                        </div>
-                        <div className="space-y-4">
-                            <CardDescription className="text-red-600 font-semibold">
-                                Select Group you want to refine your resume for
-                            </CardDescription>
-
-                            {groups && !isLoading ? (
-                                <SelectGroupForResume groups={groups} selectedGroupId={selectedGroupId} />
-                            ) : (
-                                <div className="flex justify-center">
-                                    <div className="text-muted-foreground">Loading groups...</div>
-                                    <Loader2 className="animate-spin" />
-                                </div>
-                            )}
-                        </div>
-                    </CardContent>
-                </Card>
-
-                {/* Chat Section takes 2 columns */}
-                <Card className="flex flex-col h-full md:col-span-2">
-                    <CardHeader>
-                        <div className="flex items-center gap-3">
-                            <ChatBubbleIcon className="h-6 w-6 text-primary" />
-                            <div>
-                                <CardTitle>Resume Assistant</CardTitle>
-                                <CardDescription>Ask questions about your resume</CardDescription>
-                            </div>
-                        </div>
-                    </CardHeader>
-                    <CardContent className="flex-grow">
-                        <ScrollArea className="h-[500px] pr-4 min-w-full">
-                            {chatHistory.map((chat, index) => (
-                                <div key={index} className="space-y-4 mb-4">
-                                    <div className="flex justify-start">
-                                        <div className="bg-primary text-primary-foreground flex flex-wrap rounded-md px-3 py-1 max-w-[70%]">{chat.question}</div>
-                                    </div>
-                                    <div className="flex justify-start">
-                                        <div className="rounded-md  py-1 w-full">
-                                            {chat.answer === "Loading..." ? (
-                                                <div className="flex items-center">
-                                                    <span className="flex items-center justify-center p-2">
-                                                        {/* First dot - grows and shrinks */}
-                                                        <span className="inline-block h-2 w-2 bg-gray-500 rounded-full mx-0.5 transform transition-all duration-700"
-                                                            style={{ animation: "pulse 1.4s cubic-bezier(0.4, 0, 0.6, 1) infinite", animationDelay: "0ms" }}>
-                                                        </span>
-
-                                                        {/* Second dot - fades in and out */}
-                                                        <span className="inline-block h-2 w-2 bg-gray-500 rounded-full mx-0.5 transition-opacity duration-700"
-                                                            style={{ animation: "fade 1.4s ease-in-out infinite", animationDelay: "200ms" }}>
-                                                        </span>
-
-                                                        {/* Third dot - slides up and down */}
-                                                        <span className="inline-block h-2 w-2 bg-gray-500 rounded-full mx-0.5 transition-transform duration-700"
-                                                            style={{ animation: "bounce 1.4s ease infinite", animationDelay: "400ms" }}>
-                                                        </span>
-                                                    </span>
-                                                </div>
-                                            ) : (
-                                                <div className='flex-grow overflow-hidden py-2 w-full'>
-                                                    {/* Content wrapper with proper height constraints */}
-                                                    <div className='h-full flex flex-col gap-4'>
-                                                        {/* Markdown section with controlled height */}
-                                                        <div className='flex-1 min-h-0'>
-                                                            <MDEditor.Markdown
-                                                                style={{
-                                                                    padding: '10px',
-                                                                    height: '100%',
-                                                                    maxWidth: '100%',
-
-                                                                }}
-                                                                source={chat.answer}
-                                                                className='w-full h-full overflow-auto rounded-md border'
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                    <div ref={messagesEndRef} />
-                                </div>
-                            ))}
-                        </ScrollArea>
-                    </CardContent>
-                    <CardFooter>
-                        <form onSubmit={handleChatSubmit} className="w-full flex gap-2">
-                            <Input
-                                value={chatMessage}
-                                onChange={(e) => setChatMessage(e.target.value)}
-                                placeholder="Ask about resume improvements..."
-                            />
-                            <Button
-                                type="submit"
-                                className="shrink-0"
-                                disabled={chatMessage === "" || isProcessing}>
-                                {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : "Send"}
-                            </Button>
-                        </form>
-                    </CardFooter>
-                </Card>
+                            </form>
+                        </CardFooter>
+                    </Card>
+                </div>
             </div>
         </div>
     )
 }
 
 export default ResumeUploader
-

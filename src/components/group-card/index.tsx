@@ -1,10 +1,11 @@
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Globe, Lock, Users, Edit, User } from "lucide-react"
+import { Globe, Lock, User, Edit, MoreHorizontal } from "lucide-react"
 import Image from "next/image"
 import { Progress } from "@/components/ui/progress"
-
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 interface GroupCardProps {
     group: {
@@ -24,110 +25,161 @@ interface GroupCardProps {
 export function GroupCard({ group, onEdit }: GroupCardProps) {
     const membershipPercentage = (group.joinedMembers / group.maxMembers) * 100
 
+    // Determine progress color based on membership percentage
+    const getProgressColor = () => {
+        if (membershipPercentage >= 90) return "bg-destructive"
+        if (membershipPercentage >= 75) return "bg-warning"
+        return "bg-success"
+    }
+
     return (
-        <Card className="w-full max-w-md overflow-hidden hover:shadow-lg transition-shadow group/card">
-            <CardContent className="p-0">
-                <div className="flex items-start p-4 gap-4">
-                    {/* Group Image with hover effect */}
-                    <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 border-2 border-muted/50 hover:border-primary/20 transition-all">
-                        <Image
+        <Card className="w-full overflow-hidden transition-all hover:shadow-md">
+            <CardHeader className="p-4 pb-0 flex flex-row items-start justify-between space-y-0">
+                <div className="flex items-center gap-3">
+                    <Avatar className="h-12 w-12 border-2 border-muted">
+                        <AvatarImage
                             src={group.imageUrl || '/assets/images/group.webp'}
                             alt={group.name}
-                            layout="fill"
-                            objectFit="cover"
-                            className="transition-opacity hover:opacity-90"
-                            priority
                         />
-                    </div>
-
-                    {/* Content Area */}
-                    <div className="flex-grow space-y-2">
-                        {/* Header Section with improved truncation */}
-                        <div className="flex justify-between items-start gap-2">
-                            <h3 className="text-lg font-semibold truncate max-w-[70%] hover:text-primary transition-colors">
-                                {group.name}
-                            </h3>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => onEdit(group.id)}
-                                className="h-8 w-8 p-0 rounded-full hover:bg-accent/50"
-                                aria-label="Edit group"
-                            >
-                                <Edit className="h-4 w-4" />
-                            </Button>
-                        </div>
-
-                        {/* Description with fade effect */}
-                        <p className="text-sm text-muted-foreground line-clamp-2 transition-opacity group-hover/card:text-foreground/80">
-                            {group.description}
-                        </p>
-
-                        {/* Tags Section with hover effects */}
-                        {group.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-2">
-                                {group.tags.map((tag, index) => (
-                                    <Badge
-                                        key={index}
-                                        variant="secondary"
-                                        className="px-2 py-1 text-xs font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
-                                    >
-                                        #{tag}
-                                    </Badge>
-                                ))}
-                            </div>
-                        )}
+                        <AvatarFallback>{group.name.slice(0, 2)}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <CardTitle className="text-base sm:text-lg font-semibold line-clamp-1 pr-6">
+                                        {group.name}
+                                    </CardTitle>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>{group.name}</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                        <p className="text-xs text-muted-foreground">{group.category}</p>
                     </div>
                 </div>
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onEdit(group.id)}
+                    className="h-8 w-8 rounded-full"
+                    aria-label="Edit group"
+                >
+                    <Edit className="h-4 w-4" />
+                </Button>
+            </CardHeader>
+
+            <CardContent className="p-4">
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                                {group.description}
+                            </p>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-md">
+                            <p>{group.description}</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+
+                {group.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                        {group.tags.slice(0, 5).map((tag, index) => (
+                            <Badge
+                                key={index}
+                                variant="secondary"
+                                className="px-2 py-0.5 text-xs font-medium"
+                            >
+                                #{tag}
+                            </Badge>
+                        ))}
+                        {group.tags.length > 5 && (
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Badge variant="outline" className="px-2 py-0.5 text-xs">
+                                            +{group.tags.length - 5} more
+                                        </Badge>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <div className="flex flex-wrap gap-1 max-w-xs">
+                                            {group.tags.slice(5).map((tag, index) => (
+                                                <Badge key={index} variant="secondary" className="text-xs">
+                                                    #{tag}
+                                                </Badge>
+                                            ))}
+                                        </div>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                        )}
+                    </div>
+                )}
             </CardContent>
 
-            {/* Footer Section with tighter spacing */}
-            <CardFooter className="px-4 py-2.5 bg-muted/10">
-                <div className="w-full flex items-center justify-between gap-3">
-                    {/* Privacy Indicator with pulse animation */}
-                    <div className={`flex items-center gap-2 px-3 py-1 rounded-full transition-colors ${group.isPublic
-                        ? 'bg-green-100/80 hover:bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
-                        : 'bg-red-100/80 hover:bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
-                        }`}>
-                        {group.isPublic ? (
-                            <Globe className="h-4 w-4" />
-                        ) : (
-                            <Lock className="h-4 w-4" />
-                        )}
-                        <span className="text-sm font-medium">
-                            {group.isPublic ? 'Public' : 'Private'}
-                        </span>
-                    </div>
+            <CardFooter className="p-3 border-t bg-muted/5 flex flex-col sm:flex-row gap-3">
+                <div className="w-full sm:w-auto flex items-center">
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full ${group.isPublic
+                                        ? "bg-primary/10 text-primary hover:bg-primary/15"
+                                        : "bg-destructive/10 text-destructive hover:bg-destructive/15"
+                                    } transition-colors`}>
+                                    {group.isPublic ? (
+                                        <Globe className="h-3.5 w-3.5" />
+                                    ) : (
+                                        <Lock className="h-3.5 w-3.5" />
+                                    )}
+                                    <span className="text-xs font-medium">
+                                        {group.isPublic ? "Public" : "Private"}
+                                    </span>
+                                </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>{group.isPublic ? "Anyone can join this group" : "Invitation required to join"}</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+                </div>
 
-                    {/* Members & Progress with tooltip-ready container */}
-                    <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
-                            <User className="h-4 w-4 flex-shrink-0" />
-                            <span className="font-medium text-foreground">
-                                {group.joinedMembers}
-                            </span>
-                            <span>/</span>
-                            <span>{group.maxMembers}</span>
-                        </div>
+                <div className="w-full sm:flex-1 flex items-center justify-between sm:justify-end gap-3">
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <div className="flex items-center gap-1.5">
+                                    <User className="h-3.5 w-3.5 text-muted-foreground" />
+                                    <span className="text-xs font-medium">
+                                        {group.joinedMembers}/{group.maxMembers}
+                                    </span>
+                                </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>{group.joinedMembers} of {group.maxMembers} members have joined</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
 
-                        <div className="flex items-center gap-2 w-24 relative">
-                            <Progress
-                                value={membershipPercentage}
-                                className="h-2 bg-muted/50 hover:bg-muted transition-colors"
-                                style={{
-                                    backgroundColor: '#e5e7eb',
-                                    ['--progress' as any]: membershipPercentage >= 90
-                                        ? '#f87171'
-                                        : membershipPercentage >= 75
-                                            ? '#fb923c'
-                                            : '#4ade80' // Brighter green
-                                }}
-                            />
-                            <span className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                                {Math.round(membershipPercentage)}%
-                            </span>
-                        </div>
-                    </div>
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <div className="flex items-center gap-2 w-32">
+                                    <Progress
+                                        value={membershipPercentage}
+                                        className={`h-2 ${getProgressColor()}`}
+                                    />
+                                    <span className="text-xs text-muted-foreground">
+                                        {Math.round(membershipPercentage)}%
+                                    </span>
+                                </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>Group is {Math.round(membershipPercentage)}% full</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
                 </div>
             </CardFooter>
         </Card>
