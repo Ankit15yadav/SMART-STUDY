@@ -16,6 +16,10 @@ interface Message {
     senderId: string;
     createdAt: Date;
     groupId: string;
+    sender: {
+        firstName: string,
+        lastName: string,
+    }
 }
 
 interface ISocketContext {
@@ -69,6 +73,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
         }
     }, [socket]);
 
+
     useEffect(() => {
         const _socket = io("http://localhost:8000");
 
@@ -77,6 +82,9 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
         });
 
         _socket.on('message', onMessageReceived);
+        _socket.on("previousMessages", (messages) => {
+            setMessages(messages)
+        })
         setSocket(_socket);
 
         return () => {

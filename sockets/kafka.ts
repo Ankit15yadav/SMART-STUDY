@@ -37,7 +37,7 @@ export async function createProducer() {
 export async function produceMessage(message: string) {
     const values = JSON.parse(message);
 
-    console.log("kafka values", values);
+    // console.log("kafka values", values);
     const producer = await createProducer();
 
     await producer.send({
@@ -67,7 +67,7 @@ export async function startMessageConsumer() {
                 // Parse the message
                 const messageData = JSON.parse(message.value.toString());
 
-                console.log(messageData);
+                // console.log(messageData);
 
                 // Validate required fields
                 if (!messageData.groupId || !messageData.senderId || !messageData.content) {
@@ -75,14 +75,14 @@ export async function startMessageConsumer() {
                 }
 
                 // Create message in database
-                // await db.message.create({
-                //     data: {
-                //         content: messageData.content,
-                //         groupId: messageData.groupId,
-                //         senderId: messageData.senderId,
-                //         createdAt: messageData.createdAt ? new Date(messageData.createdAt) : undefined,
-                //     }
-                // });
+                await db.message.create({
+                    data: {
+                        content: messageData.content,
+                        groupId: messageData.groupId,
+                        senderId: messageData.senderId,
+                        createdAt: messageData.createdAt ? new Date(messageData.createdAt) : undefined,
+                    }
+                });
 
                 console.log(`Message stored: ${messageData.content}`);
             } catch (error) {

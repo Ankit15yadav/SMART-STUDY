@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { ArrowRight, Loader2 } from 'lucide-react'
 import { api } from '@/trpc/react'
 import { toast } from 'sonner'
-import { useRouter } from 'next/navigation'
+import { redirect, useRouter } from 'next/navigation'
 import Image from 'next/image'
 
 
@@ -37,6 +37,8 @@ const Interests = () => {
                     toast.success('Interests added successfully')
                     setIsLoading(false)
                     // redirect('/')
+
+                    redirect("/groups")
                 },
                 onError: (error) => {
                     console.log(error);

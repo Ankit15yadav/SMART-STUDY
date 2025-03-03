@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { X, Loader, Upload } from "lucide-react";
+import { X, Loader, Upload, Info } from "lucide-react";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
 import useRefetch from "@/hooks/use-refetch";
@@ -29,6 +29,8 @@ import {
 import Image from "next/image";
 import { data as InterestList } from "public/assets/interests/data";
 import { ScrollArea } from "../ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface FormData {
     groupName: string;
@@ -51,7 +53,6 @@ const initialFormData: FormData = {
     preview: null,
     privateGroupInfo: null,
 };
-
 
 const CreateGroup: React.FC = () => {
     const [data, setData] = useState<FormData>(initialFormData);
@@ -139,6 +140,11 @@ const CreateGroup: React.FC = () => {
             return;
         }
 
+        if (!data.isPublic && !data.privateGroupInfo) {
+            toast.error("Please provide requirements for your private group.");
+            return;
+        }
+
         setIsLoading(true);
         try {
             await createGroup.mutateAsync({
@@ -163,40 +169,38 @@ const CreateGroup: React.FC = () => {
 
     return (
         <ScrollArea className="h-[calc(100vh-4rem)] w-full">
-            <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-                <Card className="max-w-6xl mx-auto shadow-lg">
-                    <CardHeader className="space-y-1">
-                        <CardTitle className="text-3xl bg-gradient-to-tl from-red-200 to-red-700 bg-clip-text text-transparent text-center font-bold">
+            <div className="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8">
+                <Card className="max-w-7xl mx-auto shadow-md border-border">
+                    <CardHeader className="space-y-1 pb-4">
+                        <CardTitle className="text-2xl font-bold text-center text-primary">
                             Create New Group
                         </CardTitle>
-                        <CardDescription className="text-gray-500 text-center">
+                        <CardDescription className="text-muted-foreground text-center">
                             Build your community with shared interests and goals
                         </CardDescription>
                     </CardHeader>
+                    <Separator className="mb-6" />
                     <CardContent>
-                        <form onSubmit={handleSubmit} className="space-y-6">
-                            {/* Group Name */}
-                            <div className="space-y-2">
-                                <Label htmlFor="groupName">Group Name</Label>
-                                <Input
-                                    id="groupName"
-                                    placeholder="Awesome Community"
-                                    value={data.groupName}
-                                    onChange={handleInputChange}
-                                    maxLength={50}
-                                />
-                                <span className="text-sm text-gray-500">
-                                    {50 - data.groupName.length} characters remaining
-                                </span>
-                            </div>
-
+                        <form onSubmit={handleSubmit} className="space-y-8">
                             {/* Cover Image Upload with Improved UI */}
                             <div className="space-y-2">
-                                <Label htmlFor="coverImage">Cover Image</Label>
+                                <div className="flex items-center justify-between">
+                                    <Label htmlFor="coverImage" className="text-base font-medium">Cover Image</Label>
+                                    <TooltipProvider>
+                                        <Tooltip>
+                                            <TooltipTrigger>
+                                                <Info size={16} className="text-muted-foreground" />
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                <p className="w-60">Upload an image that represents your group</p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </TooltipProvider>
+                                </div>
                                 <div
                                     onDragOver={handleDragOver}
                                     onDrop={handleDrop}
-                                    className="relative border-2 border-dashed border-gray-300 rounded-md p-6 cursor-pointer hover:border-blue-500 transition-colors"
+                                    className="relative border-2 border-dashed rounded-lg p-6 cursor-pointer transition-all hover:border-primary hover:bg-primary/5"
                                 >
                                     <input
                                         id="coverImage"
@@ -210,22 +214,26 @@ const CreateGroup: React.FC = () => {
                                             <Image
                                                 src={data.preview}
                                                 alt="Cover Preview"
-                                                width={100}
-                                                height={10}
-                                                className="w-full h-fit object-cover rounded-md"
+                                                width={400}
+                                                height={225}
+                                                className="w-full h-48 object-cover rounded-md"
                                             />
-                                            <button
+                                            <Button
                                                 type="button"
                                                 onClick={handleRemoveImage}
-                                                className="absolute top-2 right-2 bg-red-600 rounded-full text-white p-1"
+                                                variant="destructive"
+                                                size="icon"
+                                                className="absolute top-2 right-2"
                                             >
                                                 <X size={16} />
-                                            </button>
+                                            </Button>
                                         </div>
                                     ) : (
-                                        <div className="flex flex-col items-center justify-center">
-                                            <Upload size={32} className="text-gray-400" />
-                                            <p className="mt-2 text-gray-500">
+                                        <div className="flex flex-col items-center justify-center py-8">
+                                            <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+                                                <Upload size={24} className="text-primary" />
+                                            </div>
+                                            <p className="mt-4 text-muted-foreground text-center">
                                                 Drag & drop an image here or click to select one
                                             </p>
                                         </div>
@@ -233,58 +241,133 @@ const CreateGroup: React.FC = () => {
                                 </div>
                             </div>
 
-                            {/* Group Description */}
-                            <div className="space-y-2">
-                                <Label htmlFor="groupDescription">Description</Label>
-                                <Textarea
-                                    id="groupDescription"
-                                    placeholder="Describe your group's purpose and goals..."
-                                    value={data.groupDescription}
-                                    onChange={handleInputChange}
-                                    className="min-h-[120px]"
-                                    maxLength={300}
-                                />
-                                <span className="text-sm text-gray-500">
-                                    {300 - data.groupDescription.length} characters remaining
-                                </span>
-                            </div>
+                            {/* Basic Information Section */}
+                            <div className="space-y-6">
+                                <h3 className="text-lg font-semibold text-foreground">Basic Information</h3>
 
-                            {/* Tags Select with Search */}
-                            <div className="space-y-2">
-                                <Label>Tags (Max 5)</Label>
-                                <div className="flex flex-wrap gap-2 mb-2">
-                                    {data.tags.map((tag) => (
-                                        <Badge
-                                            key={tag}
-                                            variant="secondary"
-                                            className="text-sm pr-1 flex items-center"
-                                        >
-                                            {tag}
-                                            <button
-                                                type="button"
-                                                onClick={() => handleRemoveTag(tag)}
-                                                className="ml-2 hover:text-red-500"
-                                            >
-                                                <X size={14} />
-                                            </button>
-                                        </Badge>
-                                    ))}
+                                {/* Group Name */}
+                                <div className="space-y-2">
+                                    <Label htmlFor="groupName" className="text-base">Group Name <span className="text-destructive">*</span></Label>
+                                    <Input
+                                        id="groupName"
+                                        placeholder="Enter your group name"
+                                        value={data.groupName}
+                                        onChange={handleInputChange}
+                                        maxLength={50}
+                                        className="focus-visible:ring-primary"
+                                        required
+                                    />
+                                    <p className="text-sm text-muted-foreground">
+                                        {50 - data.groupName.length} characters remaining
+                                    </p>
                                 </div>
 
-                                <Command className="rounded-lg border">
+                                {/* Group Description */}
+                                <div className="space-y-2">
+                                    <Label htmlFor="groupDescription" className="text-base">Description <span className="text-destructive">*</span></Label>
+                                    <Textarea
+                                        id="groupDescription"
+                                        placeholder="Describe your group's purpose and goals..."
+                                        value={data.groupDescription}
+                                        onChange={handleInputChange}
+                                        className="min-h-32 focus-visible:ring-primary"
+                                        maxLength={300}
+                                        required
+                                    />
+                                    <p className="text-sm text-muted-foreground">
+                                        {300 - data.groupDescription.length} characters remaining
+                                    </p>
+                                </div>
+                            </div>
+
+                            <Separator />
+
+                            {/* Group Settings Section */}
+                            <div className="space-y-6">
+                                <h3 className="text-lg font-semibold text-foreground">Group Settings</h3>
+
+                                {/* Privacy Settings */}
+                                <div className="space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <Label htmlFor="isPublic" className="text-base">Group Privacy</Label>
+                                            <p className="text-sm text-muted-foreground mt-1">
+                                                {data.isPublic
+                                                    ? "Anyone can join this group"
+                                                    : "Requires invitation to join"}
+                                            </p>
+                                        </div>
+                                        <Switch
+                                            id="isPublic"
+                                            checked={data.isPublic}
+                                            onCheckedChange={handleSwitchChange}
+                                            className="data-[state=checked]:bg-primary"
+                                        />
+                                    </div>
+
+                                    {!data.isPublic && (
+                                        <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
+                                            <Label htmlFor="privateGroupInfo" className="text-base">Private Group Requirements <span className="text-destructive">*</span></Label>
+                                            <Textarea
+                                                className="mt-2 focus-visible:ring-primary"
+                                                placeholder="Describe the requirements to join this private group..."
+                                                id="privateGroupInfo"
+                                                value={data.privateGroupInfo || ""}
+                                                onChange={handleInputChange}
+                                                required
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Max Members */}
+                                <div className="space-y-2">
+                                    <div className="flex items-center justify-between">
+                                        <Label htmlFor="maxMembers" className="text-base">Maximum Members</Label>
+                                        <span className="text-primary font-medium">{data.maxMembers}</span>
+                                    </div>
+                                    <Input
+                                        id="maxMembers"
+                                        type="range"
+                                        min="2"
+                                        max="20"
+                                        value={data.maxMembers}
+                                        onChange={handleInputChange}
+                                        className="w-full focus-visible:ring-primary accent-primary"
+                                    />
+                                    <p className="text-sm text-muted-foreground">
+                                        Group size must be between 2 and 20 members
+                                    </p>
+                                </div>
+                            </div>
+
+                            <Separator />
+
+                            {/* Tags Section */}
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <h3 className="text-lg font-semibold text-foreground">Group Tags</h3>
+                                    <Badge variant="outline" className="text-primary border-primary/50">
+                                        {data.tags.length}/5
+                                    </Badge>
+                                </div>
+
+                                <Command className="rounded-lg border shadow-sm">
                                     <CommandInput
                                         placeholder="Search interests..."
                                         value={searchQuery}
                                         onValueChange={setSearchQuery}
+                                        className="focus-visible:ring-primary"
                                     />
-                                    <CommandList>
+                                    <CommandList className="max-h-40">
                                         {filteredInterests.length > 0 ? (
                                             filteredInterests.map((interest) => (
                                                 <CommandItem
                                                     key={interest.id}
                                                     value={interest.title}
                                                     onSelect={() => handleAddTag(interest.title)}
-                                                    className="cursor-pointer p-2 hover:bg-gray-50"
+                                                    className="cursor-pointer hover:bg-primary/10"
+                                                    disabled={data.tags.includes(interest.title) || data.tags.length >= 5}
                                                 >
                                                     {interest.title}
                                                 </CommandItem>
@@ -294,87 +377,58 @@ const CreateGroup: React.FC = () => {
                                         )}
                                     </CommandList>
                                 </Command>
-                                <p className="text-sm text-gray-500 mt-1">
+
+                                <div className="flex flex-wrap gap-2 min-h-12">
+                                    {data.tags.map((tag) => (
+                                        <Badge
+                                            key={tag}
+                                            className="bg-primary/10 text-primary border-primary/30 hover:bg-primary/20 px-3 py-1"
+                                        >
+                                            {tag}
+                                            <button
+                                                type="button"
+                                                onClick={() => handleRemoveTag(tag)}
+                                                className="ml-2 text-primary hover:text-destructive"
+                                            >
+                                                <X size={14} />
+                                            </button>
+                                        </Badge>
+                                    ))}
+                                </div>
+                                <p className="text-sm text-muted-foreground">
                                     Select relevant interests to help others find your group
                                 </p>
                             </div>
-
-                            {/* Privacy and Members */}
-                            <div className="flex flex-col ">
-                                <div className="flex items-center space-x-2">
-                                    <Switch
-                                        id="isPublic"
-                                        checked={data.isPublic}
-                                        onCheckedChange={handleSwitchChange}
-                                    />
-                                    <div>
-                                        <Label htmlFor="isPublic">Public Group</Label>
-                                        <p className="text-sm text-gray-500">
-                                            {data.isPublic
-                                                ? "Anyone can join this group"
-                                                : "Requires invitation to join"}
-                                        </p>
-                                    </div>
-                                </div>
-
-
-                                {
-                                    !data.isPublic && (
-                                        <div className="mt-2">
-                                            <Label htmlFor="privateGroupInfo"> Group Requirements</Label>
-                                            <Textarea
-                                                className="mt-2"
-                                                placeholder="Describe the requirements to join this private group..."
-                                                id="privateGroupInfo"
-                                                value={data.privateGroupInfo || ""}
-                                                onChange={handleInputChange}
-                                                required
-                                            />
-                                        </div>
-
-                                    )
-                                }
-
-                                <div className="space-y-2 mt-4">
-                                    <Label htmlFor="maxMembers">Maximum Members</Label>
-                                    <Input
-                                        id="maxMembers"
-                                        type="number"
-                                        min="2"
-                                        max="20"
-                                        value={data.maxMembers}
-                                        onChange={handleInputChange}
-                                        className="w-full"
-                                    />
-                                    <p className="text-sm text-gray-500">
-                                        Group members must be between 2 and 20.
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* Submit Button */}
-                            <CardFooter className="pt-4 px-0">
-                                <Button
-                                    type="submit"
-                                    className="w-full bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white"
-                                    disabled={isLoading}
-                                >
-                                    {isLoading ? (
-                                        <div className="flex items-center gap-x-2">
-                                            <Loader className="animate-spin" size={18} />
-                                            Creating Group...
-                                        </div>
-                                    ) : (
-                                        "Create Group"
-                                    )}
-                                </Button>
-                            </CardFooter>
                         </form>
                     </CardContent>
+
+                    <CardFooter className="flex justify-end gap-4 pt-6 pb-8 px-6">
+                        <Button
+                            variant="outline"
+                            onClick={() => setData(initialFormData)}
+                            disabled={isLoading}
+                            className="w-1/3"
+                        >
+                            Reset
+                        </Button>
+                        <Button
+                            onClick={handleSubmit}
+                            className="w-2/3 bg-primary hover:bg-primary/90 text-primary-foreground"
+                            disabled={isLoading}
+                        >
+                            {isLoading ? (
+                                <div className="flex items-center gap-x-2">
+                                    <Loader className="animate-spin" size={18} />
+                                    <span>Creating Group...</span>
+                                </div>
+                            ) : (
+                                "Create Group"
+                            )}
+                        </Button>
+                    </CardFooter>
                 </Card>
             </div>
         </ScrollArea>
-
     );
 };
 

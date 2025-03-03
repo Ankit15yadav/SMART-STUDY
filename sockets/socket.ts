@@ -1,6 +1,7 @@
 import { Server } from "socket.io"
 import Redis from "ioredis";
 import { produceMessage } from "./kafka";
+import { db } from "@/server/db";
 
 const pub = new Redis({
     host: 'valkey-12a88d4b-yadavankit97620-d80a.h.aivencloud.com',
@@ -41,9 +42,24 @@ class SocketService {
         io.on("connect", (socket) => {
             console.log(`New socket connected ${socket.id}`)
 
-            socket.on('joinGroup', ({ groupId, userId }: { groupId: string, userId: string }) => {
+            socket.on('joinGroup', async ({ groupId, userId }: { groupId: string, userId: string }) => {
                 socket.join(groupId)
                 // console.log(`user ${userId} joined group ${groupId}`)
+
+                const messages = await db.message.findMany({
+                    where: { groupId },
+                    orderBy: { createdAt: "asc" },
+                    include: {
+                        sender: {
+                            select: {
+                                firstName: true,
+                                lastName: true,
+                            }
+                        }
+                    }
+                })
+
+                socket.emit("previousMessages", messages);
             })
 
             socket.on('event:message', async ({ message, groupId, userId }: { message: string, groupId: string, userId: string }) => {
