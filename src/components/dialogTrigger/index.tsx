@@ -13,6 +13,7 @@ import useLocalStorageState from "use-local-storage-state";
 import { useRouter } from 'next/navigation'
 import { api } from '@/trpc/react'
 import useRefetch from '@/hooks/use-refetch'
+import { processPDF } from '@/lib/resume-loader'
 
 interface GroupCardProps {
     group: {
@@ -90,35 +91,35 @@ const DialogOpen = ({ group }: GroupCardProps) => {
         await joinGroup(groupdId);
     }
 
-    const handlePrivateGroupJoin = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        console.log(privateModal);
-    };
     // const handlePrivateGroupJoin = async (e: React.FormEvent) => {
     //     e.preventDefault();
 
-    //     setIsLoading(true)
-
-    //     try {
-    //         const result = await processPDF(userResume!, group.tags, group.privateGroupInfo || "");
-
-    //         if (result?.verdict === "Approved") {
-    //             await joinGroup(group.id);
-
-    //             toast.success("Profile accepted,  Joining group process initiated.");
-    //         }
-
-    //         if (result?.verdict === "Rejected") {
-    //             toast.error("Profile rejected,  Please update your Profile More.");
-    //         }
-    //     } catch (error) {
-    //         toast.error("Error in AI generation");
-    //     }
-    //     finally {
-    //         setIsLoading(false)
-    //     }
+    //     console.log(privateModal);
     // };
+    const handlePrivateGroupJoin = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        setIsLoading(true)
+
+        try {
+            const result = await processPDF(userResume!, group.tags, group.privateGroupInfo || "", privateModal.learningGoals, privateModal.studyPreference);
+
+            if (result?.verdict === "Approved") {
+                await joinGroup(group.id);
+
+                toast.success("Profile accepted,  Joining group process initiated.");
+            }
+
+            if (result?.verdict === "Rejected") {
+                toast.error("Profile rejected,  Please update your Profile More.");
+            }
+        } catch (error) {
+            toast.error("Error in AI generation");
+        }
+        finally {
+            setIsLoading(false)
+        }
+    };
 
 
     const handlePrivateGroupModalContentChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

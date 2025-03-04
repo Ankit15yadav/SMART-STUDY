@@ -13,20 +13,22 @@ const ModelParams = genAI.getGenerativeModel({
 
 export const AiBasedGroupJoining = async (
     resume: string | undefined,
-    interest: string[],
-    skills: string
+    Grouptags: string[],
+    privateGroupInfo: string,
+    learningGoals: string,
+    studyPreference: string,
 ) => {
     const prompt = `
 You are an expert evaluator for private groups. An applicant has applied to join a private group, and the group owner has specified the required skills for members. Evaluate the application based on the information provided below, and speak directly to the applicant as if you were having a one-on-one conversation.
 
 Applicant Profile:
 - **Resume:** ${resume}
-- **Skills:** ${skills}
-- **Interests:** ${interest}
+- **Skills:** ${learningGoals}
+- **Interests:** ${studyPreference}
 
 Group Requirements:
-- **Required Skills:** You must have a good knowledge of React, TypeScript, and Tailwind CSS to be considered for this role.
-- **Preferred Skills:** Experience with Prisma is a plus.
+- **Required Skills:** user should good knowledge of atleast one provided ${Grouptags}.
+- **Preferred Skills:** ${privateGroupInfo}.
 
 Instructions:
 1. Assess how well your resume, skills, and interests match the group's required skills.
@@ -61,6 +63,8 @@ Please structure your response as follows:
     if (feedbackMatch) {
         feedback = feedbackMatch[1]!.trim();
     }
+
+    console.log(fullResponse);
 
     return {
         verdict,
