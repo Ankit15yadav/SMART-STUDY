@@ -1,7 +1,8 @@
-import { z } from "zod";
+import { string, z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { Tag } from "lucide-react";
 import { projectOnExit } from "next/dist/build/swc/generated-native";
+import { error } from "console";
 
 
 export const GroupRouter = createTRPCRouter({
@@ -234,6 +235,34 @@ export const GroupRouter = createTRPCRouter({
 
         } catch (error) {
             console.log("Error while getting joined groups", error);
+        }
+    }),
+
+    updateGroup: protectedProcedure.input(z.object({ groupId: z.string() })).mutation(async ({ ctx, input }) => {
+        if (!ctx.user.userId) throw new Error('authorized');
+
+        const user = await ctx.db.user.findUnique({
+            where: {
+                id: ctx.user.userId,
+            }
+        })
+
+        if (!user) throw new Error('User not found')
+
+        try {
+            const groupUpdate = await ctx.db.group.update({
+                where: {
+                    id: input.groupId,
+                    maxMembers: 4,
+                },
+                data: {
+                    name: "name changed"
+                }
+            })
+
+            return groupUpdate;
+        } catch (error) {
+            console.log("error while updating group info");
         }
     })
 })

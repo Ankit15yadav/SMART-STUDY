@@ -7,14 +7,18 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Input } from "@/components/ui/input"
 import { Search } from "lucide-react"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 
 const MyGroups = () => {
     const { data: groups, isLoading } = api.Groups.getMyGroups.useQuery()
     const [searchQuery, setSearchQuery] = useState("")
 
+    const router = useRouter();
+
     const handleEdit = (groupId: string) => {
         // Implement edit functionality here
-        console.log(`Editing group with ID: ${groupId}`)
+        router.push(`/groups/my-groups/edit/${groupId}`);
+
     }
 
     // Filter groups based on search query
