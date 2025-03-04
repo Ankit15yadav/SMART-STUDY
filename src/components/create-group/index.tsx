@@ -31,6 +31,7 @@ import { data as InterestList } from "public/assets/interests/data";
 import { ScrollArea } from "../ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 
 interface FormData {
     groupName: string;
@@ -58,8 +59,10 @@ const CreateGroup: React.FC = () => {
     const [data, setData] = useState<FormData>(initialFormData);
     const [searchQuery, setSearchQuery] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [selectedValue, setSelectedValue] = useState('beginner');
     const createGroup = api.Groups.createGroup.useMutation();
     const refetch = useRefetch();
+
 
     const filteredInterests = InterestList.filter((interest) =>
         interest.title.toLowerCase().includes(searchQuery.toLowerCase())
@@ -155,6 +158,7 @@ const CreateGroup: React.FC = () => {
                 Tag: data.tags,
                 imageUrl: data.preview || undefined,
                 privateGroupInfo: data.privateGroupInfo || undefined,
+                evaluationCriteria: selectedValue || '',
             });
             toast.success("Group created successfully!");
             refetch();
@@ -307,15 +311,41 @@ const CreateGroup: React.FC = () => {
 
                                     {!data.isPublic && (
                                         <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
-                                            <Label htmlFor="privateGroupInfo" className="text-base">Private Group Requirements <span className="text-destructive">*</span></Label>
-                                            <Textarea
-                                                className="mt-2 focus-visible:ring-primary"
-                                                placeholder="Describe the requirements to join this private group..."
-                                                id="privateGroupInfo"
-                                                value={data.privateGroupInfo || ""}
-                                                onChange={handleInputChange}
-                                                required
-                                            />
+                                            <div>
+                                                <Label htmlFor="privateGroupInfo" className="text-base">Private Group Requirements <span className="text-destructive">*</span></Label>
+                                                <Textarea
+                                                    className="mt-2 focus-visible:ring-primary"
+                                                    placeholder="Describe the requirements to join this private group..."
+                                                    id="privateGroupInfo"
+                                                    value={data.privateGroupInfo || ""}
+                                                    onChange={handleInputChange}
+                                                    required
+                                                />
+
+                                                <div className="mt-4">
+                                                    <Label htmlFor="evaluationCriteria" className="text-base" >AI Evaluation Criteria <span className="text-destructive">*</span></Label>
+                                                    <RadioGroup
+                                                        defaultValue="comfortable"
+                                                        name="evaluationCriteria"
+                                                        value={selectedValue}
+                                                        onValueChange={setSelectedValue}
+                                                        className="mt-4 flex gap-x-4"
+                                                    >
+                                                        <div className="flex items-center space-x-2">
+                                                            <RadioGroupItem value="beginner" id="r1" />
+                                                            <Label htmlFor="r1">Beginner</Label>
+                                                        </div>
+                                                        <div className="flex items-center space-x-2">
+                                                            <RadioGroupItem value="intermediate" id="r2" />
+                                                            <Label htmlFor="r2">Intermediate</Label>
+                                                        </div>
+                                                        <div className="flex items-center space-x-2">
+                                                            <RadioGroupItem value="advance" id="r3" />
+                                                            <Label htmlFor="r3">Advance</Label>
+                                                        </div>
+                                                    </RadioGroup>
+                                                </div>
+                                            </div>
                                         </div>
                                     )}
                                 </div>

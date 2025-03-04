@@ -27,22 +27,13 @@ const AllGroupsBasedOnInterest = () => {
 
     // Filter groups based on tags instead of name or description
     const filteredGroups = groups?.filter(group => {
-        // Assuming each g
-        // roup has a tags property, if not you'll need to adjust this
+        // Assuming each group has a tags property, if not you'll need to adjust this
         const groupTags = group.tags || [];
         return searchQuery === '' ||
             groupTags.some(tag =>
                 tag.toLowerCase().includes(searchQuery.toLowerCase())
             );
     });
-
-    if (isLoading) return (
-        <div className="mt-2 p-4">
-            {Array.from({ length: 3 }).map((_, index) => (
-                <MyGroupsSkeleton key={index} />
-            ))}
-        </div>
-    );
 
     if (error) return <div>Error loading groups.</div>;
 
@@ -90,16 +81,32 @@ const AllGroupsBasedOnInterest = () => {
                                 No groups match your search criteria. Try searching for different tags.
                             </div>
                         ) : (
-                            filteredGroups?.map((group) => (
-                                <GroupCard
-                                    key={group.id}
-                                    group={{
-                                        ...group,
-                                        joinedMembers: group.members.length,
-                                        members: group.members
-                                    }}
-                                />
-                            ))
+                            <>
+                                {
+                                    isLoading ? (
+                                        <div className="mt-2 p-4">
+                                            {Array.from({ length: 3 }).map((_, index) => (
+                                                <MyGroupsSkeleton key={index} />
+                                            ))}
+                                        </div>
+                                    )
+                                        :
+                                        (
+                                            filteredGroups?.map((group) => (
+                                                <GroupCard
+                                                    key={group.id}
+                                                    group={{
+                                                        ...group,
+                                                        joinedMembers: group.members.length,
+                                                        members: group.members
+                                                    }}
+                                                />
+                                            ))
+                                        )
+                                }
+                            </>
+
+
                         )}
                     </div>
                 </ScrollArea>

@@ -17,7 +17,7 @@ async function downloadPDF(url: string, outputPath: string) {
 }
 
 export async function processPDF(userResume: string, Grouptags: string[], privateGroupInfo: string, learningGoals: string,
-    studyPreference: string
+    studyPreference: string, evaluationCriteria: string
 ): Promise<{ verdict: string; feedback: string; fullResponse: string; } | null> {
     // Download the PDF first
     await downloadPDF(userResume, localPdfPath);
@@ -31,7 +31,7 @@ export async function processPDF(userResume: string, Grouptags: string[], privat
         return null;
     }
 
-    const aiResponse = await AiBasedGroupJoining(docs[0]?.pageContent, Grouptags, privateGroupInfo, learningGoals, studyPreference);
+    const aiResponse = await AiBasedGroupJoining(docs[0]?.pageContent, Grouptags, privateGroupInfo, learningGoals, studyPreference, evaluationCriteria);
 
     // console.log("AI Response Verdict:", aiResponse.verdict);
 

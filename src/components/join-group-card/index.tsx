@@ -20,6 +20,7 @@ interface GroupCardProps {
         maxMembers: number
         tags: string[]
         joinedMembers: number
+        evaluationCriteria?: string | null
         members: {
             userId: string
         }[],

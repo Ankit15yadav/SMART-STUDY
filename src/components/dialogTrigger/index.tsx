@@ -27,6 +27,7 @@ interface GroupCardProps {
         tags: string[]
         joinedMembers: number,
         privateGroupInfo?: string | null,
+        evaluationCriteria?: string | null
         createdBy: {
             firstName: string | null
             lastName: string | null
@@ -91,18 +92,13 @@ const DialogOpen = ({ group }: GroupCardProps) => {
         await joinGroup(groupdId);
     }
 
-    // const handlePrivateGroupJoin = async (e: React.FormEvent) => {
-    //     e.preventDefault();
-
-    //     console.log(privateModal);
-    // };
     const handlePrivateGroupJoin = async (e: React.FormEvent) => {
         e.preventDefault();
 
         setIsLoading(true)
 
         try {
-            const result = await processPDF(userResume!, group.tags, group.privateGroupInfo || "", privateModal.learningGoals, privateModal.studyPreference);
+            const result = await processPDF(userResume!, group.tags, group.privateGroupInfo || "", privateModal.learningGoals, privateModal.studyPreference, group.evaluationCriteria || "");
 
             if (result?.verdict === "Approved") {
                 await joinGroup(group.id);

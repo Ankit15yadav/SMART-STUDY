@@ -15,6 +15,7 @@ export const GroupRouter = createTRPCRouter({
             isPublic: z.boolean(),
             Tag: z.array(z.string()),
             privateGroupInfo: z.string().optional(),
+            evaluationCriteria: z.string().optional(),
         }))
         .mutation(async ({ ctx, input }) => {
 
@@ -39,6 +40,7 @@ export const GroupRouter = createTRPCRouter({
                         category: "",
                         isPublic: input.isPublic,
                         privateGroupInfo: input.privateGroupInfo,
+                        evaluationCriteria: input.evaluationCriteria,
 
                         tags: input.Tag,
                         members: {
@@ -144,6 +146,7 @@ export const GroupRouter = createTRPCRouter({
                     createdBy: true,
                     createdAt: true,
                     privateGroupInfo: true,
+                    evaluationCriteria: true,
                 }
             })
 

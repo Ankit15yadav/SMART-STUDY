@@ -47,7 +47,8 @@ model Group {
     isPublic    Boolean
     category    String
 
-    privateGroupInfo String?
+    evaluationCriteria String?
+    privateGroupInfo   String?
 
     tags String[]
 
