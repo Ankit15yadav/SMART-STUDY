@@ -6,6 +6,13 @@ import Image from "next/image"
 import { Progress } from "@/components/ui/progress"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog"
+import { Label } from "../ui/label"
+import { Input } from "../ui/input"
+import { useState } from "react"
+import { Switch } from "../ui/switch"
+import { check } from "prettier"
+import { api } from "@/trpc/react"
 
 interface GroupCardProps {
     group: {
@@ -22,8 +29,39 @@ interface GroupCardProps {
     onEdit: (id: string) => void
 }
 
+interface EditGroup {
+    groupName: string,
+    description: string,
+    visibility: boolean
+}
+
 export function GroupCard({ group, onEdit }: GroupCardProps) {
+
+    const [groupData, setGroupData] = useState<EditGroup>({
+        groupName: group.name,
+        description: group.description,
+        visibility: group.isPublic
+    })
+
     const membershipPercentage = (group.joinedMembers / group.maxMembers) * 100
+
+    const handleGroupChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+
+        const { name, value } = e.target;
+
+        setGroupData((prevData) => ({
+            ...prevData,
+            [name]: value
+        }))
+    }
+
+    const handleSwitchChange = (checked: boolean) => {
+        setGroupData((prev) => ({ ...prev, visibility: checked }))
+    }
+
+    const handleSubmit = async () => {
+
+    }
 
     // Determine progress color based on membership percentage
     const getProgressColor = () => {
@@ -59,15 +97,66 @@ export function GroupCard({ group, onEdit }: GroupCardProps) {
                         <p className="text-xs text-muted-foreground">{group.category}</p>
                     </div>
                 </div>
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onEdit(group.id)}
-                    className="h-8 w-8 rounded-full"
-                    aria-label="Edit group"
-                >
-                    <Edit className="h-4 w-4" />
-                </Button>
+                <Dialog>
+                    <DialogTrigger asChild>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 rounded-full"
+                            aria-label="Edit group"
+                        >
+                            <Edit className="h-4 w-4" />
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[475px]">
+                        <DialogHeader>
+                            <DialogTitle>Edit Group</DialogTitle>
+                            <DialogDescription>
+                                Make changes to your Group here. Click save when you're done.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="grid gap-4 py-4">
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label htmlFor="name" className="text-right">
+                                    Name
+                                </Label>
+                                <Input id="name"
+                                    name="groupName"
+                                    value={groupData.groupName}
+                                    onChange={handleGroupChange}
+                                    className="col-span-3" />
+                            </div>
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label htmlFor="description" className="text-right">
+                                    Description
+                                </Label>
+                                <Input id="description"
+                                    name="description"
+                                    value={groupData.description}
+                                    onChange={handleGroupChange}
+                                    className="col-span-3" />
+                            </div>
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label htmlFor="isPublic" className="text-right">
+                                    isPublic
+                                </Label>
+                                <Switch
+                                    id="isPublic"
+                                    name="visibility"
+                                    checked={groupData.visibility}
+                                    onCheckedChange={handleSwitchChange}
+                                    className="data-[state=checked]:bg-primary"
+                                />
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <Button
+                                onClick={handleSubmit}
+                            >Save changes</Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+
             </CardHeader>
 
             <CardContent className="p-4">
@@ -125,8 +214,8 @@ export function GroupCard({ group, onEdit }: GroupCardProps) {
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full ${group.isPublic
-                                        ? "bg-primary/10 text-primary hover:bg-primary/15"
-                                        : "bg-destructive/10 text-destructive hover:bg-destructive/15"
+                                    ? "bg-primary/10 text-primary hover:bg-primary/15"
+                                    : "bg-destructive/10 text-destructive hover:bg-destructive/15"
                                     } transition-colors`}>
                                     {group.isPublic ? (
                                         <Globe className="h-3.5 w-3.5" />

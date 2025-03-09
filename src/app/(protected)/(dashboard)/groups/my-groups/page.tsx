@@ -8,16 +8,20 @@ import { Input } from "@/components/ui/input"
 import { Search } from "lucide-react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { Dialog } from "@/components/ui/dialog"
 
 const MyGroups = () => {
     const { data: groups, isLoading } = api.Groups.getMyGroups.useQuery()
     const [searchQuery, setSearchQuery] = useState("")
+    const [open, setOpen] = useState<boolean>(false);
 
     const router = useRouter();
 
     const handleEdit = (groupId: string) => {
         // Implement edit functionality here
-        router.push(`/groups/my-groups/edit/${groupId}`);
+        // router.push(`/groups/my-groups/edit/${groupId}`);
+
+        setOpen(true)
 
     }
 
@@ -33,6 +37,11 @@ const MyGroups = () => {
 
     return (
         <div className="flex flex-col h-full w-full">
+
+            <Dialog open={open}>
+
+            </Dialog>
+
             {/* Header with title and search */}
             <div className="p-6 pb-2 border-b">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">

@@ -264,5 +264,5 @@ export const GroupRouter = createTRPCRouter({
         } catch (error) {
             console.log("error while updating group info");
         }
-    })
+    }),
 })
