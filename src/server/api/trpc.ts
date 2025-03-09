@@ -82,13 +82,17 @@ export const createTRPCRouter = t.router;
  */
 const isAuthenticated = t.middleware(async ({ next, ctx }) => {
   const user = await auth();
+  // const Clerk = 
   if (!user) {
     throw new Error("Not authenticated");
   }
   return next({
     ctx: {
       ...ctx,
-      user,
+      user: {
+        userId: user.userId,
+        email: user.sessionClaims?.email
+      }
     }
   })
 })

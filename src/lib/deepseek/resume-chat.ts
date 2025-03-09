@@ -2,33 +2,84 @@
 import { streamText } from "ai";
 import { createStreamableValue } from "ai/rsc";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
-import { parsePdfFromUrl, processPDF } from "../resume-loader";
+import { parsePdfFromUrl } from "../resume-loader";
 
-// Use environment variable for API key
 const geminiApiKey = process.env.GEMINI_API_KEY;
+if (!geminiApiKey) throw new Error("GEMINI_API_KEY is not set");
+const google = createGoogleGenerativeAI({ apiKey: geminiApiKey });
 
-if (!geminiApiKey) {
-    throw new Error("GEMINI_API_KEY is not set");
+export async function analyzeResumeWithGemini(
+  resume: string,
+  message: string,
+  particularGroup?: string | null
+) {
+  const stream = createStreamableValue();
+
+  (async () => {
+    try {
+      // Select appropriate prompt based on presence of particularGroup
+      const prompt = particularGroup
+        ? createGroupSpecificPrompt(resume, message, particularGroup)
+        : createGeneralPrompt(resume, message);
+
+      const { textStream } = streamText({
+        model: google('gemini-1.5-pro-latest'),
+        prompt
+      });
+
+      for await (const delta of textStream) {
+        stream.update(delta);
+      }
+      stream.done();
+    } catch (error) {
+      stream.update(`Error: ${(error as Error).message}`);
+      stream.done();
+    }
+  })();
+
+  return stream.value;
 }
 
-const google = createGoogleGenerativeAI({
-    apiKey: geminiApiKey,
-});
+// Helper function for group-specific prompt
+function createGroupSpecificPrompt(resume: string, message: string, group: string) {
+  return `
+  **Role:** Expert AI Resume Advisor specializing in ${group} recruitment requirements
 
-export async function analyzeResumeWithGemini(resume: string, message: string) {
-    // Create a streamable value that we'll update as responses come in
+  **Group-Specific Requirements:**
+  - Required Skills: [${group}'s core competencies]
+  - Key Keywords: [${group}'s preferred terminology]
+  - Format Preferences: [${group}'s resume structure guidelines]
 
-    // console.log("resume", resume.toString());
+  **User Resume:**
+  ${resume}
 
-    const stream = createStreamableValue();
+  **User Query:**
+  ${message}
 
-    // Start an async process to handle the streaming
-    (async () => {
-        try {
-            const { textStream } = streamText({
-                model: google('gemini-1.5-pro-latest'),
-                prompt: `
-       **Role:**  
+  **Analysis Workflow:**
+  1. FIRST verify if query is resume-related - if not, respond with "I specialize in ${group} resume optimization only"
+  2. Identify 3 key matches between resume and ${group}'s requirements
+  3. Highlight 2-3 gaps needing improvement for ${group} standards
+  4. Provide ${group}-specific optimization strategies
+  5. Include one concrete example using ${group}'s preferred metrics/formatting
+
+  **Response Rules:**
+  - Wrap lines at 60vw width
+  - Use ${group}'s terminology
+  - Prioritize hard skills over soft skills
+  - Add ${group}-specific section headers if applicable
+
+  **Example Response:**
+  ✅ **${group} Alignment:** "Your experience with [X] matches ${group}'s core requirement for [Y]"
+  📌 **Improve for ${group}:** "Add ${group}-preferred keyword: [Z] in experience section"
+  💡 **${group} Pro Tip:** "Highlight quantifiable impacts using ${group}'s preferred metric: [...]"
+  `;
+}
+
+// Helper function for general prompt
+function createGeneralPrompt(resume: string, message: string) {
+  return `
+  **Role:**  
 You are an Expert AI Resume Advisor specializing in resume optimization, ATS compliance, and career strategy.  
 
 **Context:**  
@@ -94,33 +145,11 @@ ${message} *[User's input]*
 
   and lastly, the response you gave should not have more that width of 60vw of the content, it should come in next line if the code is increasing a limit keep this line in mind for every responses
         `
-            });
-
-            // Process each chunk as it arrives and update the streamable value
-            for await (const delta of textStream) {
-                // console.log(delta);
-                stream.update(delta);
-            }
-
-            // Mark the stream as complete
-            stream.done();
-        } catch (error) {
-            // Handle errors by updating the stream with an error message
-            stream.update(`Error: ${(error as Error).message}`);
-            stream.done();
-        }
-    })();
-
-    // Return the streamable value that the frontend can consume
-    return stream.value;
+    ;
 }
 
-// console.log(await analyzeResumeWithGemini("", ""));
-
-export async function FinalRespone(resume: string, message: string) {
-
-    const parsedResume = await parsePdfFromUrl(resume);
-
-    return await analyzeResumeWithGemini(parsedResume!, message)
-
+// PDF processing function
+export async function FinalResponse(resume: string, message: string, particularGroup?: string | null) {
+  const parsedResume = await parsePdfFromUrl(resume);
+  return analyzeResumeWithGemini(parsedResume!, message, particularGroup);
 }

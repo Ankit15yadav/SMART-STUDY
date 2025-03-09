@@ -16,69 +16,91 @@ interface Group {
 interface SelectGroupForResumeProps {
     groups: Group[];
     selectedGroupId: Dispatch<SetStateAction<string | null>>;
+    setPrivateValue: Dispatch<SetStateAction<string | null>>
 }
 
-const SelectGroupForResume = ({ groups, selectedGroupId }: SelectGroupForResumeProps) => {
+const SelectGroupForResume = ({ groups, selectedGroupId, setPrivateValue }: SelectGroupForResumeProps) => {
     const [open, setOpen] = React.useState(false);
     const [value, setValue] = React.useState("");
 
     return (
         <div>
-            <Popover open={open} onOpenChange={setOpen}>
-                <PopoverTrigger asChild>
-                    <Button
-                        variant={'outline'}
-                        role="combobox"
-                        aria-expanded={open}
-                        className="w-full justify-between"
-                    >
-                        {value
-                            ? groups.find((group) => group.name === value)?.name
-                            : 'Select Group...'}
-                        <ChevronsUpDown className="opacity-50" />
-                    </Button>
-                </PopoverTrigger>
-                {/* Setting the PopoverContent width to match the trigger */}
-                <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
-                    <Command>
-                        {/* The full-width search input */}
-                        <CommandInput
-                            placeholder="Search framework..."
-                            className="h-9 w-full px-3"
-                        />
-                        <CommandList>
-                            <CommandEmpty>No groups found.</CommandEmpty>
-                            <CommandGroup>
-                                {groups.map((group) => (
+            <div className='flex justify-between gap-x-2'>
+                <Popover open={open} onOpenChange={setOpen}>
+                    <PopoverTrigger asChild>
+                        <Button
+                            variant={'outline'}
+                            role="combobox"
+                            aria-expanded={open}
+                            className="w-full justify-between"
+                        >
+                            {value
+                                ? groups.find((group) => group.name === value)?.name
+                                : 'Select Group...'}
+                            <ChevronsUpDown className="opacity-50" />
+                        </Button>
+                    </PopoverTrigger>
+                    {/* Setting the PopoverContent width to match the trigger */}
+                    <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
+                        <Command>
+                            {/* The full-width search input */}
+                            <CommandInput
+                                placeholder="Search Group..."
+                                className="h-9 w-full px-3"
+                            />
+                            <CommandList>
+                                <CommandEmpty>No groups found.</CommandEmpty>
+                                <CommandGroup>
+                                    {groups.map((group) => (
 
-                                    !group.isPublic && (
-                                        <CommandItem
-                                            key={group.id}
-                                            value={group.name}
-                                            onSelect={(e) => {
-                                                setValue(e === value ? "" : e);
-                                                setOpen(false);
-                                                selectedGroupId(group.id);
-                                            }}
-                                        >
-                                            {group.name}
-                                            <Check
-                                                className={cn(
-                                                    "ml-auto",
-                                                    value === group.name ? "opacity-100" : "opacity-0"
-                                                )}
-                                            />
-                                        </CommandItem>
-                                    )
+                                        !group.isPublic && (
+                                            <CommandItem
+                                                key={group.id}
+                                                value={group.name}
+                                                onSelect={(e) => {
+                                                    setValue(e === value ? "" : e);
+                                                    setOpen(false);
+                                                    selectedGroupId(group.id);
+                                                    setPrivateValue(group.name);
+                                                }}
+                                            >
+                                                {group.name}
+                                                <Check
+                                                    className={cn(
+                                                        "ml-auto",
+                                                        value === group.name ? "opacity-100" : "opacity-0"
+                                                    )}
+                                                />
+                                            </CommandItem>
+                                        )
 
-                                ))}
-                            </CommandGroup>
-                        </CommandList>
-                    </Command>
-                </PopoverContent>
-            </Popover>
+                                    ))}
+                                </CommandGroup>
+                            </CommandList>
+                        </Command>
+
+                    </PopoverContent>
+
+                </Popover>
+                <div className='mb-3 flex justify-end'>
+                    {
+                        value && (
+                            <Button onClick={() => {
+                                setValue("");
+                                setPrivateValue(null)
+                            }}
+                                className='text-sm'
+                                variant={'default'}
+                            >
+                                clear
+                            </Button>
+                        )
+                    }
+                </div>
+            </div>
+
+
         </div>
     );
 };
-
 export default SelectGroupForResume;

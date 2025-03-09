@@ -2,6 +2,7 @@ import { postRouter } from "@/server/api/routers/post";
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 import { interestRouter } from "./routers/interest";
 import { GroupRouter } from "./routers/groups";
+import { meetingRouter } from "./routers/google-meet";
 
 /**
  * This is the primary router for your server.
@@ -11,7 +12,8 @@ import { GroupRouter } from "./routers/groups";
 export const appRouter = createTRPCRouter({
   post: postRouter,
   interest: interestRouter,
-  Groups: GroupRouter
+  Groups: GroupRouter,
+  googleMeet: meetingRouter
 });
 
 // export type definition of API

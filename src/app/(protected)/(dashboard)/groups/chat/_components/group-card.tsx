@@ -15,7 +15,8 @@ interface GroupChatCardProps {
     },
     selectedGroupid: string,
     messages: Message[],
-    isLoading?: boolean
+    isLoading?: boolean,
+    lastMessageByGroup?: { [groupId: string]: Message } // New prop to track last message per group
 }
 
 interface Message {
@@ -30,7 +31,13 @@ interface Message {
     };
 }
 
-const GroupChatCard = ({ group, selectedGroupid, messages, isLoading = false }: GroupChatCardProps) => {
+const GroupChatCard = ({
+    group,
+    selectedGroupid,
+    messages,
+    isLoading = false,
+    lastMessageByGroup = {}
+}: GroupChatCardProps) => {
     const membersCount = group.members.length
     const maxMembers = group.maxMembers
 
@@ -45,9 +52,10 @@ const GroupChatCard = ({ group, selectedGroupid, messages, isLoading = false }: 
     }
 
     // Get the latest message for this group
-    const latestMessage = messages
-        .filter(msg => msg.groupId === group.id)
-        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+    const latestMessage = lastMessageByGroup[group.id] ||
+        messages
+            .filter(msg => msg.groupId === group.id)
+            .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
 
     // Truncate message content if too long
     const truncateMessage = (message: string, maxLength: number = 28) => {

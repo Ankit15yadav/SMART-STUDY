@@ -28,10 +28,10 @@ import { useDropzone } from "react-dropzone"
 import { toast } from "sonner"
 import { api } from "@/trpc/react"
 import SelectGroupForResume from "./_component/select-group-resume"
-import { analyzeResumeWithGemini, FinalRespone } from "@/lib/deepseek/resume-chat"
+import { FinalResponse } from "@/lib/deepseek/resume-chat"
 import MDEditor from "@uiw/react-md-editor"
 import { readStreamableValue } from "ai/rsc"
-import { cosineSimilarity } from "ai"
+import { Value } from "@radix-ui/react-select"
 
 const ResumeUploader = () => {
     const { data: interests } = api.Groups.getUserInterest.useQuery();
@@ -54,6 +54,8 @@ const ResumeUploader = () => {
     const [groupId, setSelectedGroupId] = useState<string | null>(null)
     const [isProcessing, setIsProcessing] = useState(false)
     const messagesEndRef = useRef<HTMLDivElement>(null)
+    const [privateValue, setPrivateGroupValue] = useState<string | null>(null)
+
     const particularGroup = groups?.find((group) => group.id === groupId)
 
     const onDrop = useCallback((acceptedFiles: File[]) => {
@@ -150,7 +152,9 @@ const ResumeUploader = () => {
             // Initialize an empty string for this specific message's answer
             let currentAnswer = "";
 
-            const output = await FinalRespone(storedResume, userQuestion);
+            const output = await FinalResponse(storedResume, userQuestion, particularGroup?.privateGroupInfo);
+
+            // console.log(particularGroup?.privateGroupInfo)
 
             for await (const delta of readStreamableValue(output)) {
                 if (delta) {
@@ -189,13 +193,6 @@ const ResumeUploader = () => {
     return (
         <div className="min-h-screen bg-gradient-to-b from-primary/5 to-muted/40 p-4 sm:p-6">
             <div className="max-w-8xl mx-auto space-y-6">
-                <div className="flex items-center justify-center">
-                    <Badge variant="outline" className="py-2 px-4 text-base font-medium gap-2 border-primary/30">
-                        <RocketIcon className="h-5 w-5 text-primary" />
-                        Resume Enhancement Hub
-                    </Badge>
-                </div>
-
                 <div className="grid gap-6 md:grid-cols-3">
                     {/* Resume Management Panel */}
                     <Card className="h-full md:col-span-1 shadow-md border-primary/20">
@@ -302,10 +299,18 @@ const ResumeUploader = () => {
                             <div className="space-y-4">
                                 <div className="flex items-center justify-between">
                                     <Label className="text-base font-medium">Target Group</Label>
+
                                     {particularGroup && (
-                                        <Badge variant="secondary" className="text-xs">
-                                            {particularGroup.name}
-                                        </Badge>
+                                        <>
+                                            {
+                                                privateValue && (
+                                                    <Badge variant="secondary" className="text-xs">
+                                                        {privateValue}
+                                                    </Badge>
+                                                )
+                                            }
+                                        </>
+
                                     )}
                                 </div>
 
@@ -313,6 +318,7 @@ const ResumeUploader = () => {
                                     <SelectGroupForResume
                                         groups={groups}
                                         selectedGroupId={setSelectedGroupId}
+                                        setPrivateValue={setPrivateGroupValue}
                                     />
                                 ) : (
                                     <div className="flex justify-center items-center py-4">

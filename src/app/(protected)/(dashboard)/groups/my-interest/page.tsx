@@ -27,10 +27,8 @@ const AllGroupsBasedOnInterest = () => {
 
     // Filter groups based on tags instead of name or description
     const filteredGroups = groups?.filter(group => {
-        // Assuming each group has a tags property, if not you'll need to adjust this
-        const groupTags = group.tags || [];
         return searchQuery === '' ||
-            groupTags.some(tag =>
+            group?.tags.some((tag: string) =>
                 tag.toLowerCase().includes(searchQuery.toLowerCase())
             );
     });
@@ -60,7 +58,7 @@ const AllGroupsBasedOnInterest = () => {
                     <p className="text-gray-500 text-sm mt-2">Discover and join communities that match what you care about</p>
                 </div>
 
-                <div className="relative mt-4">
+                <div className="relative mt-4 flex">
                     <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                         <Search className="h-4 w-4 text-gray-400" />
                     </div>
@@ -68,7 +66,7 @@ const AllGroupsBasedOnInterest = () => {
                         placeholder="Search groups by tags..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-10 w-full md:w-1/2 lg:w-1/3"
+                        className="pl-10 pr-1 w-full md:w-1/2 lg:w-1/3 "
                     />
                 </div>
             </div>

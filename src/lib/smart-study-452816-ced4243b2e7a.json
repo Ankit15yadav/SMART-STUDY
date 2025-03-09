@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "smart-study-452816",
+  "private_key_id": "ced4243b2e7a168b1427ea7beaa08c4b2390c4c7",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC0XF1/bIldtxoK\nlw1GvFr+oTeFP9RFyZSPLyaI1dzqLIt/GB8IOP5faK+MvKUkQAILPzLDXrjPsMmx\nYRKLG03+J821qmSCM2MkjccAsy7wLIgJ8HpbWlwHU284xYUhe83lGrm/GpCTspjC\nPPVwVbVWVsW7wxXYi/Gi4dKff/WPntz3v5Tes8SNmnThQfh4F0s4xiY1qLUnUZwA\nDcMAGy7ai2CsJ6T4HWh+K/7+7Q8apsbj2alvZJDWlwbb0B1UPcBl+XaHUH9BbxCz\nokonlZ5rp7P5q2aWSgymshT/qKoWHQkihKuwJsLY0l+oGRHKSS8Vz1pw9D2vJG7p\nH7hgY37lAgMBAAECggEABdgOUYAnTUmPBvPRAs88lY6MuX0ReDdpYGBTO9DOKSpL\nVNFnxADwwQ+nzIQaR7vpNQsVrn3luBkO1/gAvVAjrU4F3NKKEivvFPKhFZU4uqB+\nwe+wT0B0xen+qxS/VQ/pYniEtzv5nkeFqpmGDF9CkmsaWhSeoxcZu8Dcbb2cK8yY\nhzfPvmHYNqrrObtckRoZ7UBm7E4ny9VISrlAWKqR3pK2h0l4M4npX4PFqEeOnDXH\n7IipmoIYvaVfn0+cHE5UAnppOtI4t5Ki0rAU2YPXoYTo6u2+t9gV1Nw9ysyPDAma\n/OVJKUP+D9o/qLsDJFpw6UN1bK0HVL9bXSsk4f7SgQKBgQDcySIbUpLDxzWjgRRn\npiTVIgu8jCnzAyoXiAKhZ5EuGZK+0z0WYw9YentKSMPV9bisikc0GfPkzGO7Q4GM\n7/DqZMV8AssUsIkxyYJ+F3UoRC/VEQAWXQBqQo2uypJTd5N31oaetr7yAkPa2ULE\ngt+23Fp7lMbyNUANvcLfYxRZJQKBgQDRIKZmiVhydR+STpD89oP38etG6sQ/GTwO\noACia2atArly5BFgltmCytSryMLTD8ki7oIbQhEaBIU9pgWylFlV8AiNsCsOH+UK\nGD+PHEef4hViZPFHO0ztr0zEW0LXir9z8QAIcnw14elqlvBbdeBOPxP7PBWqQojN\n2ObRQdICwQKBgQCBKLzmJPksxOYxH3sTY5Oah488HvcPbeN63ptDVvYMdPNu5N6Q\nsSSyCv0DKOw/x77gWQhsh14xlAwn6cbo7xkN1iPddzjcgqXP1WWcZBaqlrEwwQA/\nFOsAPqzp+yF86LABZCNex+OOahrN9Vlk4ncDX4cjUpbL7LDrGP7edfTabQKBgGhr\n+Sqx4ewk94LCoDrvjK29qlFa4GrxWr+ivS5cmoRBHAB2SQcFy843IUI1mLJy62f5\n2BVsQ8XOBAnoYGfvEzyKAntdP+JpoqALw5Dd+hWnei4LYT7EKYF1SsuxFgsySK7H\n49BT+hmdmEOU4qeIkFwBuyRzuA2v80d1yqsqRocBAoGBAKZL3wUIqR7KDsfTMURo\nH2Ud42mlMOG/J2LXa8cOciKYDm9BBrA843HpKpo2QlepSjnYLw4AgQgiuwZdgtsg\nJEf1L07HjY4qQB3lqfezpoMaRxfypyMykfXzE4y1fHGIrVmfsJ49/yDf/s4EJEOt\n2gYkncKFfIduDWbVIq6fRS46\n-----END PRIVATE KEY-----\n",
+  "client_email": "smart-study@smart-study-452816.iam.gserviceaccount.com",
+  "client_id": "102129653622594397899",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/smart-study%40smart-study-452816.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

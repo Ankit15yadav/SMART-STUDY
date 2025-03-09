@@ -237,7 +237,7 @@ const ChatPage = () => {
                                                     >
                                                         {msg.senderId !== userId && (
                                                             <p className="text-xs text-gray-600 mb-1">
-                                                                {msg.sender.firstName || "Unknown User"}{" "}
+                                                                {msg.sender.firstName ? msg.sender.firstName : "Unknown User"}{" "}
                                                             </p>
                                                         )}
                                                         <p>{msg.content}</p>

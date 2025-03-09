@@ -1,7 +1,5 @@
 'use client'
 
-import { useUser } from '@clerk/nextjs'
-import { join } from 'path'
 import React, { useCallback, createContext, useContext, useEffect, useState } from 'react'
 import { io, Socket } from "socket.io-client"
 
@@ -17,7 +15,7 @@ interface Message {
     createdAt: Date;
     groupId: string;
     sender: {
-        firstName: string,
+        firstName: string | null,
         lastName: string,
     }
 }
