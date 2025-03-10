@@ -80,6 +80,7 @@ export const GroupRouter = createTRPCRouter({
                 maxMembers: true,
                 category: true,
                 members: true,
+                privateGroupInfo: true
             }
         })
         return groups
@@ -238,31 +239,33 @@ export const GroupRouter = createTRPCRouter({
         }
     }),
 
-    updateGroup: protectedProcedure.input(z.object({ groupId: z.string() })).mutation(async ({ ctx, input }) => {
-        if (!ctx.user.userId) throw new Error('authorized');
+    updateParticularGroup: protectedProcedure.input(z.object({
+        groupdId: z.string(),
+        name: z.string().optional(),
+        description: z.string(),
+        isPublic: z.boolean(),
+        size: z.number(),
+        privateGroupInfo: z.string()
+    })).mutation(async ({ ctx, input }) => {
 
-        const user = await ctx.db.user.findUnique({
+        if (!ctx.user.userId) {
+            throw new Error("UnAuthorized");
+        }
+
+        const UpdatedGroup = await ctx.db.group.update({
             where: {
-                id: ctx.user.userId,
+                id: input.groupdId,
+            },
+            data: {
+                name: input.name,
+                description: input.description,
+                isPublic: input.isPublic,
+                maxMembers: input.size,
+                privateGroupInfo: input.privateGroupInfo,
             }
+
         })
 
-        if (!user) throw new Error('User not found')
-
-        try {
-            const groupUpdate = await ctx.db.group.update({
-                where: {
-                    id: input.groupId,
-                    maxMembers: 4,
-                },
-                data: {
-                    name: "name changed"
-                }
-            })
-
-            return groupUpdate;
-        } catch (error) {
-            console.log("error while updating group info");
-        }
-    }),
+        return UpdatedGroup;
+    })
 })

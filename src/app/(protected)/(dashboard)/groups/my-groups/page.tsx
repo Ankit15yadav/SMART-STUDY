@@ -17,14 +17,6 @@ const MyGroups = () => {
 
     const router = useRouter();
 
-    const handleEdit = (groupId: string) => {
-        // Implement edit functionality here
-        // router.push(`/groups/my-groups/edit/${groupId}`);
-
-        setOpen(true)
-
-    }
-
     // Filter groups based on search query
     const filteredGroups = groups?.filter((group) => {
         const searchTerm = searchQuery.toLowerCase()
@@ -79,7 +71,7 @@ const MyGroups = () => {
                                     imageUrl: group.imageUrl || "",
                                     joinedMembers: group.members.length,
                                 }}
-                                onEdit={handleEdit}
+
                             />
                         ))
                     ) : filteredGroups && filteredGroups.length === 0 ? (
