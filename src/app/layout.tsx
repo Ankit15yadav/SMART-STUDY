@@ -8,6 +8,7 @@ import { TRPCReactProvider } from "@/trpc/react";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "sonner";
 import { SocketProvider } from "@/context/SocketProvider";
+import Navbar from "@/components/globals/navbar";
 
 export const metadata: Metadata = {
   title: "Smart Study",
@@ -29,7 +30,9 @@ export default function RootLayout({
           <body>
             {/* It’s a good idea to add the attribute prop so that theme changes are handled via a CSS class */}
             <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-              <TRPCReactProvider>{children}</TRPCReactProvider>
+              <TRPCReactProvider>
+                <Navbar />
+                {children}</TRPCReactProvider>
               <Toaster />
             </ThemeProvider>
           </body>

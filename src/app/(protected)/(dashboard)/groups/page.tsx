@@ -4,7 +4,7 @@ type Props = {}
 
 const page = (props: Props) => {
     return (
-        <div>hello bhaio</div>
+        <div>hello SEAI subject</div>
     )
 }
 

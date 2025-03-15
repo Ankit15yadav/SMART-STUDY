@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation'
 import React from 'react'
 import { MessageSquare, Users, PlusCircle, Settings, Heart, Group, FileUser } from "lucide-react";
 import Image from 'next/image'
+import { useRouter } from "next/navigation"
 
 type Props = {}
 
@@ -60,16 +61,19 @@ const AppSidebar = (props: Props) => {
 
     const { open } = useSidebar()
     const pathname = usePathname();
+    const router = useRouter();
+
     // const 
 
     return (
         <Sidebar collapsible='icon' variant='floating'>
-            <SidebarHeader className='flex items-center'>
+            <SidebarHeader className='flex items-center cursor-pointer'>
                 <Image
                     src={"/assets/images/logo.png"}
                     alt='logo'
                     width={150}
                     height={150}
+                    onClick={() => router.replace("/")}
                 />
             </SidebarHeader>
             <SidebarContent>

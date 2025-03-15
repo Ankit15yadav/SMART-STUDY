@@ -12,13 +12,13 @@ interface KafkaMessage {
 }
 
 const kafka = new Kafka({
-    brokers: ['kafka-972a275-ankitworkemail1501-5c73.h.aivencloud.com:20147'],
+    brokers: [process.env.KAFKA_BROKER!],
     ssl: {
         ca: [fs.readFileSync(path.resolve("./ca.pem"), "utf-8")]
     },
     sasl: {
         username: 'avnadmin',
-        password: 'AVNS_rRWumzTi2Yd9sP_XACj',
+        password: process.env.KAFKA_PASSWORD!,
         mechanism: 'plain'
     }
 })

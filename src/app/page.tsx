@@ -4,12 +4,14 @@ import Navbar from '@/components/globals/navbar'
 
 metadata.title = "Smart-Study/home"
 
-type Props = {}
+type Props = {
+  children: React.ReactNode
+}
 
-const Page = (props: Props) => {
+const Page = ({ children }: Props) => {
   return (
     <div>
-      <Navbar />
+
     </div>
   )
 }

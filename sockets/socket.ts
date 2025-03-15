@@ -4,17 +4,17 @@ import { produceMessage } from "./kafka";
 import { db } from "@/server/db";
 
 const pub = new Redis({
-    host: 'valkey-12a88d4b-yadavankit97620-d80a.h.aivencloud.com',
+    host: process.env.REDIS_HOST,
     username: 'default',
     port: 22542,
-    password: 'AVNS_Vo7vDvG1s9UfFIb0ddw'
+    password: process.env.REDIS_PASSWORD
 })
 
 const sub = new Redis({
-    host: 'valkey-12a88d4b-yadavankit97620-d80a.h.aivencloud.com',
+    host: process.env.REDIS_HOST,
     username: 'default',
     port: 22542,
-    password: 'AVNS_Vo7vDvG1s9UfFIb0ddw'
+    password: process.env.REDIS_PASSWORD
 })
 
 
@@ -67,7 +67,7 @@ class SocketService {
 
                 //publis msg to redis
                 // In your backend socket service (when publishing messages)
-                await pub.publish('MESSAGES', JSON.stringify({        // From database
+                await pub.publish('MESSAGES', JSON.stringify({
                     content: message,
                     senderId: userId,
                     createdAt: new Date(),
