@@ -43,7 +43,7 @@ export default function GroupJoinCard({ group }: GroupCardProps) {
     const spotsLeft = group.maxMembers - group.joinedMembers
 
     return (
-        <Card className="w-full mx-auto mb-6 overflow-hidden border-2 border-primary/10 hover:border-primary/30 transition-all duration-300 shadow-sm hover:shadow-md">
+        <Card className="w-full mx-auto mb-6 overflow-hidden  border-2 border-primary/10 hover:border-primary/30 transition-all duration-300 shadow-sm hover:shadow-md">
             <CardContent className="p-0">
                 <div className="flex flex-col md:flex-row items-start gap-6 p-6">
                     {/* Group Image */}

@@ -1,18 +1,16 @@
-import React from 'react'
-import { metadata } from './layout'
-import Navbar from '@/components/globals/navbar'
+'use client'
+import { useRouter } from 'next/navigation'
+import React, { useEffect } from 'react'
 
-metadata.title = "Smart-Study/home"
+const Page = () => {
 
-type Props = {
-  children: React.ReactNode
-}
+  const router = useRouter()
+  useEffect(() => {
+    router.push("/u/home")
+  }, [])
 
-const Page = ({ children }: Props) => {
   return (
-    <div>
-
-    </div>
+    <></>
   )
 }
 

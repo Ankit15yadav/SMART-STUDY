@@ -73,7 +73,7 @@ const AppSidebar = (props: Props) => {
                     alt='logo'
                     width={150}
                     height={150}
-                    onClick={() => router.replace("/")}
+                    onClick={() => router.replace("/u/home")}
                 />
             </SidebarHeader>
             <SidebarContent>
