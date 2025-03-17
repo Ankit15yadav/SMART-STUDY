@@ -44,6 +44,7 @@ body {
     --sidebar-accent-foreground: 240 5.0% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
   }
 
   .dark {
@@ -101,4 +102,21 @@ body {
 /* global.css or a module CSS file */
 .progress-bar {
   background-color: var(--custom-progress-color, #4ade80) !important;
+}
+
+.bg-noise {
+  background-image: url('/noise.png');
+  background-size: 200px 200px;
+}
+
+.text-primary {
+  color: hsl(var(--primary));
+}
+
+.bg-primary {
+  background-color: hsl(var(--primary));
+}
+
+.hover\:bg-primary-dark:hover {
+  background-color: hsl(var(--primary) / 0.9);
 }

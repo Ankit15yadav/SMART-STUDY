@@ -12,6 +12,7 @@ import {
     Mail,
     MapPin,
     Phone,
+    Loader2,
 } from "lucide-react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
@@ -24,6 +25,10 @@ import { Badge } from "@/components/ui/badge"
 import { useUser } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
 import React, { useState } from "react"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { sendEmail } from "@/lib/send-mail"
+import { toast } from "sonner"
+import { api } from "@/trpc/react"
 
 type contact = {
     name: string,
@@ -45,6 +50,7 @@ const AboutPage = () => {
     }
 
     const [contact, setContact] = useState<contact>(initialform)
+    const storeContact = api.contact.storeContact.useMutation();
 
     const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target
@@ -55,10 +61,31 @@ const AboutPage = () => {
         }))
     }
 
-    const handleSubmit = (e: any) => {
+    const handleSubmit = async (e: any) => {
 
         e.preventDefault()
 
+        try {
+
+            await storeContact.mutateAsync({
+                email: contact.email,
+                message: contact.message,
+                name: contact.name,
+                subject: contact.subject
+            }, {
+                onSuccess: async () => {
+
+                    setContact(initialform)
+                    toast.success("Message Sent successfully")
+
+                    await sendEmail(contact.email, contact.message, contact.subject);
+
+                }
+            })
+
+        } catch (error) {
+            console.log(error);
+        }
 
     }
 
@@ -147,24 +174,24 @@ const AboutPage = () => {
     }
 
     return (
-        <div className="min-h-screen bg-background text-foreground">
+        <div className="min-h-screen " >
             {/* Hero Section with Gradient Background */}
             <section className="relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-background z-0"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-sky-200/50  to-background z-0"></div>
                 <div className="absolute inset-0 bg-[url('/placeholder.svg?height=500&width=1000')] bg-no-repeat bg-cover opacity-5 mix-blend-overlay"></div>
 
                 <div className="relative z-10 pt-28 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
                     <motion.div initial="hidden" animate="visible" variants={fadeIn} className="text-center">
-                        <Badge className="mb-4 px-3 py-1 text-sm font-medium rounded-full">About SmartStudy</Badge>
-                        <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">
+                        <Badge className="mb-4 px-3 py-1 text-sm  font-medium rounded-full bg-blue-400 ">About SmartStudy</Badge>
+                        <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl bg-clip-text text-transparent bg-gradient-to-r from-gray-700  via-gray-400  to-gray-700">
                             Revolutionizing Collaborative Learning
                         </h1>
-                        <p className="mt-6 text-lg text-muted-foreground max-w-3xl mx-auto">
+                        <p className="mt-6 text-sm text-muted-foreground max-w-3xl mx-auto">
                             SmartStudy is where intelligent group collaboration meets personalized learning. We empower students to
                             create focused study communities enhanced with AI-powered tools for optimal academic success.
                         </p>
                         <div className="mt-8 flex flex-wrap justify-center gap-4">
-                            <Button size="lg" className="rounded-full" onClick={() => router.push(`${user}` ? '/groups/create' : '/sign-up')}>
+                            <Button size="lg" className="rounded-full bg-blue-400" onClick={() => router.push(`${user}` ? '/groups/create' : '/sign-up')}>
                                 Get Started
                                 <ArrowRight className="ml-2 h-4 w-4" />
                             </Button>
@@ -177,7 +204,7 @@ const AboutPage = () => {
             </section>
 
             {/* Stats Section */}
-            <section className="py-12 bg-primary/5">
+            <section className="py-12 bg-sky-200/50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <motion.div
                         initial="hidden"
@@ -188,7 +215,7 @@ const AboutPage = () => {
                     >
                         {stats.map((stat, index) => (
                             <motion.div key={index} variants={fadeIn} className="text-center">
-                                <div className="text-3xl md:text-4xl font-bold text-primary">{stat.value}</div>
+                                <div className="text-3xl md:text-4xl font-bold text-gray-500/70">{stat.value}</div>
                                 <div className="text-sm text-muted-foreground mt-1">{stat.label}</div>
                             </motion.div>
                         ))}
@@ -197,7 +224,7 @@ const AboutPage = () => {
             </section>
 
             {/* Mission Section */}
-            <section className="py-20">
+            <section className="py-20  bg-yellow-100/40">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <motion.div
                         initial="hidden"
@@ -215,7 +242,7 @@ const AboutPage = () => {
                             />
                         </div>
                         <div>
-                            <Badge className="mb-4">Our Mission</Badge>
+                            <Badge className="mb-4 bg-yellow-400 px-4 py-2 hover:bg-yellow-300">Our Mission</Badge>
                             <h2 className="text-3xl font-bold mb-6">Empowering Students Through Smart Collaboration</h2>
                             <p className="text-muted-foreground mb-6">
                                 At SmartStudy, we believe that the future of education lies in collaborative learning enhanced by
@@ -227,7 +254,7 @@ const AboutPage = () => {
                                 perfect study group, verify their qualifications through our AI tools, and collaborate effectively to
                                 achieve their academic goals.
                             </p>
-                            <Button variant="outline" className="rounded-full">
+                            <Button variant="outline" className="rounded-full bg-yellow-500/35">
                                 Learn More About Our Vision
                             </Button>
                         </div>
@@ -236,104 +263,7 @@ const AboutPage = () => {
             </section>
 
             {/* Features Section with Tabs */}
-            <section className="py-20 bg-accent/20">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <motion.div
-                        initial="hidden"
-                        whileInView="visible"
-                        viewport={{ once: true, margin: "-100px" }}
-                        variants={fadeIn}
-                        className="text-center mb-12"
-                    >
-                        <Badge className="mb-4">Features</Badge>
-                        <h2 className="text-3xl font-bold">Why Choose SmartStudy?</h2>
-                        <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
-                            Our platform combines cutting-edge AI technology with intuitive design to create the ultimate
-                            collaborative learning experience.
-                        </p>
-                    </motion.div>
-
-                    <Tabs defaultValue="collaboration" className="w-full">
-                        <TabsList className="grid grid-cols-3 max-w-md mx-auto mb-8">
-                            <TabsTrigger value="collaboration">Collaboration</TabsTrigger>
-                            <TabsTrigger value="ai">AI Tools</TabsTrigger>
-                            <TabsTrigger value="community">Community</TabsTrigger>
-                        </TabsList>
-
-                        <TabsContent value="collaboration" className="mt-0">
-                            <motion.div
-                                initial="hidden"
-                                animate="visible"
-                                variants={staggerContainer}
-                                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-                            >
-                                {features.slice(0, 3).map((feature, index) => (
-                                    <motion.div
-                                        key={index}
-                                        variants={fadeIn}
-                                        className="bg-background rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 border border-border/50"
-                                    >
-                                        <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-4">
-                                            {feature.icon}
-                                        </div>
-                                        <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                                        <p className="text-muted-foreground">{feature.description}</p>
-                                    </motion.div>
-                                ))}
-                            </motion.div>
-                        </TabsContent>
-
-                        <TabsContent value="ai" className="mt-0">
-                            <motion.div
-                                initial="hidden"
-                                animate="visible"
-                                variants={staggerContainer}
-                                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-                            >
-                                {features.slice(2, 5).map((feature, index) => (
-                                    <motion.div
-                                        key={index}
-                                        variants={fadeIn}
-                                        className="bg-background rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 border border-border/50"
-                                    >
-                                        <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-4">
-                                            {feature.icon}
-                                        </div>
-                                        <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                                        <p className="text-muted-foreground">{feature.description}</p>
-                                    </motion.div>
-                                ))}
-                            </motion.div>
-                        </TabsContent>
-
-                        <TabsContent value="community" className="mt-0">
-                            <motion.div
-                                initial="hidden"
-                                animate="visible"
-                                variants={staggerContainer}
-                                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-                            >
-                                {[features[0], features[4], features[5]].map((feature, index) => (
-                                    <motion.div
-                                        key={index}
-                                        variants={fadeIn}
-                                        className="bg-background rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 border border-border/50"
-                                    >
-                                        <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-4">
-                                            {feature?.icon}
-                                        </div>
-                                        <h3 className="text-xl font-semibold mb-2">{feature?.title}</h3>
-                                        <p className="text-muted-foreground">{feature?.description}</p>
-                                    </motion.div>
-                                ))}
-                            </motion.div>
-                        </TabsContent>
-                    </Tabs>
-                </div>
-            </section>
-
-            {/* How It Works Section */}
-            <section className="py-20">
+            <section className="py-20 bg-gradient-to-b from-rose-200/50 to-background relative">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <motion.div
                         initial="hidden"
@@ -342,7 +272,132 @@ const AboutPage = () => {
                         variants={fadeIn}
                         className="text-center mb-16"
                     >
-                        <Badge className="mb-4">Process</Badge>
+                        <Badge className="mb-4 bg-rose-300 text-gray-100 px-4 py-2 hover:bg-rose-300/50 border text-sm font-medium">
+                            Premium Features
+                        </Badge>
+                        <h2 className="text-4xl font-bold text-slate-800 font-[Inter] tracking-tight">
+                            Discover SmartStudy's Advantages
+                        </h2>
+                        <p className="mt-4 text-slate-600 max-w-2xl mx-auto text-lg leading-relaxed">
+                            Our platform combines cutting-edge AI technology with intuitive design to create the ultimate
+                            collaborative learning experience.
+                        </p>
+                    </motion.div>
+
+                    <Tabs defaultValue="collaboration" className="w-full">
+                        <TabsList className="grid grid-cols-3 max-w-xl mx-auto mb-12 bg-slate-100/80 p-2 rounded-xl border border-slate-200/50 backdrop-blur-sm">
+                            <TabsTrigger
+                                value="collaboration"
+                                className="data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:border-slate-200 rounded-lg py-2.5 px-4 transition-all border border-transparent hover:bg-white/50 text-slate-600 data-[state=active]:text-teal-600 font-medium"
+                            >
+                                🤝 Collaboration
+                            </TabsTrigger>
+                            <TabsTrigger
+                                value="ai"
+                                className="data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:border-slate-200 rounded-lg py-2.5 px-4 transition-all border border-transparent hover:bg-white/50 text-slate-600 data-[state=active]:text-indigo-600 font-medium"
+                            >
+                                🧠 AI Tools
+                            </TabsTrigger>
+                            <TabsTrigger
+                                value="community"
+                                className="data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:border-slate-200 rounded-lg py-2.5 px-4 transition-all border border-transparent hover:bg-white/50 text-slate-600 data-[state=active]:text-emerald-600 font-medium"
+                            >
+                                🌱 Community
+                            </TabsTrigger>
+                        </TabsList>
+
+                        {/* Collaboration Tab Content */}
+                        <TabsContent value="collaboration" className="mt-0">
+                            <motion.div
+                                initial="hidden"
+                                animate="visible"
+                                variants={staggerContainer}
+                                className="grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+                            >
+                                {features.slice(0, 3).map((feature, index) => (
+                                    <motion.div
+                                        key={index}
+                                        variants={fadeIn}
+                                        className="bg-gradient-to-b from-teal-100/40 to-background backdrop-blur-sm rounded-2xl p-8 shadow-[0_4px_24px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.06)] transition-all duration-300 border border-slate-200/50 hover:border-teal-200/80 relative group"
+                                    >
+                                        <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-teal-50/30 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
+                                        <div className="h-14 w-14 rounded-2xl bg-teal-500/10 flex items-center justify-center text-teal-600 mb-6">
+                                            {feature.icon}
+                                        </div>
+                                        <h3 className="text-2xl font-semibold text-slate-800 mb-3">{feature.title}</h3>
+                                        <p className="text-slate-600 leading-relaxed">{feature.description}</p>
+                                    </motion.div>
+                                ))}
+                            </motion.div>
+                        </TabsContent>
+
+                        {/* AI Tools Tab Content */}
+                        <TabsContent value="ai" className="mt-0">
+                            <motion.div
+                                initial="hidden"
+                                animate="visible"
+                                variants={staggerContainer}
+                                className="grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+                            >
+                                {features.slice(2, 5).map((feature, index) => (
+                                    <motion.div
+                                        key={index}
+                                        variants={fadeIn}
+                                        className="bg-gradient-to-b from-indigo-100 to-background backdrop-blur-sm rounded-2xl p-8 shadow-[0_4px_24px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.06)] transition-all duration-300 border border-slate-200/50 hover:border-indigo-200/80 relative group"
+                                    >
+                                        <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-indigo-50/30 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
+                                        <div className="h-14 w-14 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-600 mb-6">
+                                            {feature.icon}
+                                        </div>
+                                        <h3 className="text-2xl font-semibold text-slate-800 mb-3">{feature.title}</h3>
+                                        <p className="text-slate-600 leading-relaxed">{feature.description}</p>
+                                    </motion.div>
+                                ))}
+                            </motion.div>
+                        </TabsContent>
+
+                        {/* Community Tab Content */}
+                        <TabsContent value="community" className="mt-0">
+                            <motion.div
+                                initial="hidden"
+                                animate="visible"
+                                variants={staggerContainer}
+                                className="grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+                            >
+                                {[features[0], features[4], features[5]].map((feature, index) => (
+                                    <motion.div
+                                        key={index}
+                                        variants={fadeIn}
+                                        className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-[0_4px_24px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.06)] transition-all duration-300 border border-slate-200/50 hover:border-emerald-200/80 relative group"
+                                    >
+                                        <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-emerald-50/30 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
+                                        <div className="h-14 w-14 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-600 mb-6">
+                                            {feature?.icon}
+                                        </div>
+                                        <h3 className="text-2xl font-semibold text-slate-800 mb-3">{feature?.title}</h3>
+                                        <p className="text-slate-600 leading-relaxed">{feature?.description}</p>
+                                    </motion.div>
+                                ))}
+                            </motion.div>
+                        </TabsContent>
+                    </Tabs>
+                </div>
+
+                {/* Subtle texture overlay */}
+                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/soft-circle-scales.png')] opacity-[0.03] pointer-events-none -z-0" />
+            </section>
+
+            {/* How It Works Section */}
+            <section className="py-20 bg-gradient-to-t from-stone-300/80 to-background">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <motion.div
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true, margin: "-100px" }}
+                        variants={fadeIn}
+                        className="text-center mb-16"
+                    >
+                        <Badge className="mb-4 bg-slate-600 px-4 py-2 hover:bg-slate-500">Process</Badge>
                         <h2 className="text-3xl font-bold">How SmartStudy Works</h2>
                         <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
                             Our streamlined process makes it easy to find your perfect study group and start collaborating right away.
@@ -407,7 +462,7 @@ const AboutPage = () => {
             </section>
 
             {/* Team Section */}
-            <section className="py-20 bg-accent/20">
+            <section className="py-20 bg-gradient-to-b from-stone-300/80 to-background">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <motion.div
                         initial="hidden"
@@ -416,7 +471,6 @@ const AboutPage = () => {
                         variants={fadeIn}
                         className="text-center mb-16"
                     >
-                        <Badge className="mb-4">Our Team</Badge>
                         <h2 className="text-3xl font-bold">Meet the Founders</h2>
                         <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
                             The brilliant minds behind SmartStudy who are passionate about transforming the educational landscape.
@@ -716,7 +770,23 @@ const AboutPage = () => {
                                 </div>
                                 <Button type="submit"
                                     size="lg" className="w-full">
-                                    Send Message
+                                    {
+                                        storeContact.isPending ?
+                                            (
+                                                <div className="flex gap-x-3">
+                                                    <Loader2
+                                                        className="animate-spin"
+                                                    />
+                                                    Sending...
+                                                </div>
+                                            )
+                                            :
+                                            (
+                                                <div>
+                                                    Send Message
+                                                </div>
+                                            )
+                                    }
                                 </Button>
                             </form>
                         </motion.div>
@@ -754,87 +824,88 @@ const AboutPage = () => {
                                 <TabsTrigger value="pricing">Pricing</TabsTrigger>
                             </TabsList>
 
-                            <TabsContent value="general" className="mt-0 space-y-4">
-                                {[
-                                    {
-                                        question: "What is SmartStudy?",
-                                        answer:
-                                            "SmartStudy is a collaborative learning platform that connects students with similar academic interests and goals. Our platform uses AI to help create and verify study groups, making it easier to find the perfect learning community.",
-                                    },
-                                    {
-                                        question: "Who can use SmartStudy?",
-                                        answer:
-                                            "SmartStudy is designed for students at all levels of education, from high school to graduate studies. Anyone looking to enhance their learning through collaboration can benefit from our platform.",
-                                    },
-                                    {
-                                        question: "How do I get started?",
-                                        answer:
-                                            "Simply sign up for an account, complete your profile with your academic interests and goals, and start exploring or creating study groups. Our intuitive interface makes it easy to find the perfect learning community.",
-                                    },
-                                ].map((item, index) => (
-                                    <Card key={index}>
-                                        <CardContent className="p-6">
-                                            <h3 className="font-semibold text-lg mb-2">{item.question}</h3>
-                                            <p className="text-muted-foreground">{item.answer}</p>
-                                        </CardContent>
-                                    </Card>
-                                ))}
+                            <TabsContent value="general" className="mt-0">
+                                <Accordion type="single" collapsible className="space-y-4">
+                                    {[
+                                        {
+                                            question: "What is SmartStudy?",
+                                            answer:
+                                                "SmartStudy is a collaborative learning platform that connects students with similar academic interests and goals. Our platform uses AI to help create and verify study groups, making it easier to find the perfect learning community.",
+                                        },
+                                        {
+                                            question: "Who can use SmartStudy?",
+                                            answer:
+                                                "SmartStudy is designed for students at all levels of education, from high school to graduate studies. Anyone looking to enhance their learning through collaboration can benefit from our platform.",
+                                        },
+                                        {
+                                            question: "How do I get started?",
+                                            answer:
+                                                "Simply sign up for an account, complete your profile with your academic interests and goals, and start exploring or creating study groups. Our intuitive interface makes it easy to find the perfect learning community.",
+                                        },
+                                    ].map((item, index) => (
+                                        <AccordionItem key={index} value={`general-${index}`}>
+                                            <AccordionTrigger>{item.question}</AccordionTrigger>
+                                            <AccordionContent>{item.answer}</AccordionContent>
+                                        </AccordionItem>
+                                    ))}
+                                </Accordion>
                             </TabsContent>
 
-                            <TabsContent value="features" className="mt-0 space-y-4">
-                                {[
-                                    {
-                                        question: "How does the AI resume analysis work?",
-                                        answer:
-                                            "Our AI analyzes your resume to identify your skills, experience, and academic background. This information is used to match you with study groups that align with your qualifications and learning goals.",
-                                    },
-                                    {
-                                        question: "Can I create both public and private groups?",
-                                        answer:
-                                            "Yes, SmartStudy allows you to create both public groups that anyone can join and private groups that require verification through our AI resume analysis.",
-                                    },
-                                    {
-                                        question: "What tools are available for collaboration?",
-                                        answer:
-                                            "SmartStudy offers a variety of tools for collaboration, including discussion forums, resource sharing, video conferencing, and collaborative document editing.",
-                                    },
-                                ].map((item, index) => (
-                                    <Card key={index}>
-                                        <CardContent className="p-6">
-                                            <h3 className="font-semibold text-lg mb-2">{item.question}</h3>
-                                            <p className="text-muted-foreground">{item.answer}</p>
-                                        </CardContent>
-                                    </Card>
-                                ))}
+                            <TabsContent value="features" className="mt-0">
+                                <Accordion type="single" collapsible className="space-y-4">
+                                    {[
+                                        {
+                                            question: "How does the AI resume analysis work?",
+                                            answer:
+                                                "Our AI analyzes your resume to identify your skills, experience, and academic background. This information is used to match you with study groups that align with your qualifications and learning goals.",
+                                        },
+                                        {
+                                            question: "Can I create both public and private groups?",
+                                            answer:
+                                                "Yes, SmartStudy allows you to create both public groups that anyone can join and private groups that require verification through our AI resume analysis.",
+                                        },
+                                        {
+                                            question: "What tools are available for collaboration?",
+                                            answer:
+                                                "SmartStudy offers a variety of tools for collaboration, including discussion forums, resource sharing, video conferencing, and collaborative document editing.",
+                                        },
+                                    ].map((item, index) => (
+                                        <AccordionItem key={index} value={`features-${index}`}>
+                                            <AccordionTrigger>{item.question}</AccordionTrigger>
+                                            <AccordionContent>{item.answer}</AccordionContent>
+                                        </AccordionItem>
+                                    ))}
+                                </Accordion>
                             </TabsContent>
 
-                            <TabsContent value="pricing" className="mt-0 space-y-4">
-                                {[
-                                    {
-                                        question: "Is SmartStudy free to use?",
-                                        answer:
-                                            "SmartStudy offers a free basic plan with limited features. We also offer premium plans with additional features and capabilities for a monthly subscription fee.",
-                                    },
-                                    {
-                                        question: "Are there discounts for educational institutions?",
-                                        answer:
-                                            "Yes, we offer special pricing for educational institutions. Contact our sales team for more information on institutional licensing.",
-                                    },
-                                    {
-                                        question: "Can I cancel my subscription at any time?",
-                                        answer:
-                                            "Yes, you can cancel your subscription at any time. Your access to premium features will continue until the end of your billing cycle.",
-                                    },
-                                ].map((item, index) => (
-                                    <Card key={index}>
-                                        <CardContent className="p-6">
-                                            <h3 className="font-semibold text-lg mb-2">{item.question}</h3>
-                                            <p className="text-muted-foreground">{item.answer}</p>
-                                        </CardContent>
-                                    </Card>
-                                ))}
+                            <TabsContent value="pricing" className="mt-0">
+                                <Accordion type="single" collapsible className="space-y-4">
+                                    {[
+                                        {
+                                            question: "Is SmartStudy free to use?",
+                                            answer:
+                                                "SmartStudy offers a free basic plan with limited features. We also offer premium plans with additional features and capabilities for a monthly subscription fee.",
+                                        },
+                                        {
+                                            question: "Are there discounts for educational institutions?",
+                                            answer:
+                                                "Yes, we offer special pricing for educational institutions. Contact our sales team for more information on institutional licensing.",
+                                        },
+                                        {
+                                            question: "Can I cancel my subscription at any time?",
+                                            answer:
+                                                "Yes, you can cancel your subscription at any time. Your access to premium features will continue until the end of your billing cycle.",
+                                        },
+                                    ].map((item, index) => (
+                                        <AccordionItem key={index} value={`pricing-${index}`}>
+                                            <AccordionTrigger>{item.question}</AccordionTrigger>
+                                            <AccordionContent>{item.answer}</AccordionContent>
+                                        </AccordionItem>
+                                    ))}
+                                </Accordion>
                             </TabsContent>
                         </Tabs>
+
                     </motion.div>
                 </div>
             </section>
