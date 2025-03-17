@@ -1,5 +1,5 @@
 'use client'
-import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/components/ui/sidebar'
+import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/components/ui/sidebar'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -7,6 +7,7 @@ import React from 'react'
 import { MessageSquare, Users, PlusCircle, Settings, Heart, Group, FileUser } from "lucide-react";
 import Image from 'next/image'
 import { useRouter } from "next/navigation"
+import { Button } from '@/components/ui/button'
 
 type Props = {}
 
@@ -104,6 +105,15 @@ const AppSidebar = (props: Props) => {
                     </SidebarGroupContent>
                 </SidebarGroup>
             </SidebarContent>
+            <SidebarFooter >
+                <Button asChild>
+                    <Link href={'/groups/create'}>
+                        {
+                            open ? ('Create Group') : ('+')
+                        }
+                    </Link>
+                </Button>
+            </SidebarFooter>
         </Sidebar>
     )
 }

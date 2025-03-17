@@ -7,6 +7,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { Menu, X, Bell, Search, Moon, Sun } from 'lucide-react'
+import { useTheme } from 'next-themes'
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -43,7 +44,7 @@ const Navbar = () => {
     const router = useRouter();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
-    const [isDarkMode, setIsDarkMode] = useState(false);
+    const { theme, setTheme } = useTheme();
 
     // Handle scroll effect
     useEffect(() => {
@@ -55,44 +56,32 @@ const Navbar = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    // Handle dark mode toggle
-    useEffect(() => {
-        if (isDarkMode) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
-    }, [isDarkMode]);
-
-    const toggleDarkMode = () => {
-        setIsDarkMode(!isDarkMode);
-    };
-
     return (
         <>
-            <nav className={`fixed top-0 left-0 right-0 z-50 border-b border-gray-300 transition-all duration-300 ${isScrolled ? 'bg-white/90 dark:bg-gray-900/90 backdrop-blur-md shadow-md' : 'bg-white dark:bg-gray-900'}`}>
+            <nav className={`fixed top-0 left-0 right-0 z-50 border-b transition-all duration-300 ${isScrolled ? 'bg-background/90 backdrop-blur-md shadow-sm' : 'bg-background'}`}>
                 <div className='w-11/12 md:w-10/12 lg:w-9/12 mx-auto h-16 flex items-center justify-between'>
                     {/* Logo */}
-                    <div className='flex items-center'>
+                    <div className='flex items-center gap-2'>
                         <Image
                             src={"/assets/images/logo.png"}
                             alt='logo'
                             width={120}
                             height={40}
-                            className='cursor-pointer'
+                            className='cursor-pointer hover:opacity-80 transition-opacity'
                             onClick={() => router.push('/')}
+                            priority
                         />
                     </div>
 
                     {/* Desktop navigation */}
-                    <div className='hidden md:flex gap-x-6 font-medium'>
+                    <div className='hidden md:flex gap-x-8'>
                         {NavbarTabs.map((item) => (
                             <Link
                                 href={item.path}
                                 key={item.id}
-                                className={`${pathname === item.path
-                                    ? 'text-primary border-b-2 border-primary py-1'
-                                    : 'text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors'
+                                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${pathname === item.path
+                                    ? 'bg-primary/10 text-primary font-semibold'
+                                    : 'text-foreground/80 hover:bg-accent hover:text-foreground'
                                     }`}
                             >
                                 {item.title}
@@ -101,34 +90,36 @@ const Navbar = () => {
                     </div>
 
                     {/* Desktop actions */}
-                    <div className='hidden md:flex items-center gap-x-4'>
+                    <div className='hidden md:flex items-center gap-x-3'>
+                        {/* Theme Toggle */}
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                            className='text-foreground/70 hover:text-foreground'
+                        >
+                            {theme === 'dark' ? (
+                                <Sun size={20} className='rotate-0 scale-100 transition-all' />
+                            ) : (
+                                <Moon size={20} className='rotate-0 scale-100 transition-all' />
+                            )}
+                        </Button>
+
                         {/* Search button */}
                         <Button
                             variant="ghost"
                             size="icon"
                             onClick={() => router.push('/groups/my-interest')}
-                            className='text-gray-700 dark:text-gray-300'
+                            className='text-foreground/70 hover:text-foreground'
                         >
                             <Search size={20} />
                         </Button>
 
-                        {/* Dark mode toggle */}
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={toggleDarkMode}
-                            className='text-gray-700 dark:text-gray-300'
-                        >
-                            {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
-                        </Button>
-
-                        {/* Authentication */}
                         {isSignedIn ? (
                             <div className='flex items-center gap-x-3'>
-                                {/* Notifications */}
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
-                                        <Button variant="ghost" size="icon" className='relative text-gray-700 dark:text-gray-300'>
+                                        <Button variant="ghost" size="icon" className='relative text-foreground/70 hover:text-foreground'>
                                             <Bell size={20} />
                                             <span className='absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center'>3</span>
                                         </Button>
@@ -137,49 +128,51 @@ const Navbar = () => {
                                         <DropdownMenuItem className='cursor-pointer'>
                                             <div className='flex flex-col'>
                                                 <span className='font-medium'>New group invitation</span>
-                                                <span className='text-sm text-gray-500'>2 minutes ago</span>
+                                                <span className='text-sm text-muted-foreground'>2 minutes ago</span>
                                             </div>
                                         </DropdownMenuItem>
                                         <DropdownMenuItem className='cursor-pointer'>
                                             <div className='flex flex-col'>
                                                 <span className='font-medium'>Group meeting scheduled</span>
-                                                <span className='text-sm text-gray-500'>1 hour ago</span>
+                                                <span className='text-sm text-muted-foreground'>1 hour ago</span>
                                             </div>
                                         </DropdownMenuItem>
                                         <DropdownMenuItem className='cursor-pointer'>
                                             <div className='flex flex-col'>
                                                 <span className='font-medium'>New message from admin</span>
-                                                <span className='text-sm text-gray-500'>Yesterday</span>
+                                                <span className='text-sm text-muted-foreground'>Yesterday</span>
                                             </div>
                                         </DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
 
-                                {/* Dashboard button */}
                                 <Button
-                                    className='px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 transition-colors'
+                                    className='px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 transition-colors font-medium'
                                     onClick={() => router.push("/groups")}
                                 >
                                     Dashboard
                                 </Button>
 
-                                {/* User profile */}
-                                <UserButton fallback="/" />
+                                <UserButton appearance={{
+                                    elements: {
+                                        avatarBox: 'h-9 w-9'
+                                    }
+                                }} />
                             </div>
                         ) : (
                             <div className='flex gap-x-2'>
                                 <Button
                                     variant="outline"
                                     onClick={() => router.push("/sign-in")}
-                                    className='border-primary text-primary hover:bg-primary/10'
+                                    className='text-foreground/80 hover:text-foreground'
                                 >
                                     Sign In
                                 </Button>
                                 <Button
                                     onClick={() => router.push("/sign-up")}
-                                    className='bg-primary hover:bg-primary/90'
+                                    className='bg-primary hover:bg-primary/90 font-medium'
                                 >
-                                    Sign Up
+                                    Get Started
                                 </Button>
                             </div>
                         )}
@@ -191,7 +184,7 @@ const Navbar = () => {
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className='relative text-gray-700 dark:text-gray-300'
+                                className='relative text-foreground/70 hover:text-foreground'
                             >
                                 <Bell size={20} />
                                 <span className='absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center'>3</span>
@@ -202,7 +195,7 @@ const Navbar = () => {
                             variant="ghost"
                             size="icon"
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                            className='text-gray-700 dark:text-gray-300'
+                            className='text-foreground/70 hover:text-foreground'
                         >
                             {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
                         </Button>
@@ -211,98 +204,94 @@ const Navbar = () => {
 
                 {/* Mobile menu */}
                 {isMobileMenuOpen && (
-                    <div className='md:hidden bg-white dark:bg-gray-900 shadow-md'>
-                        <div className='w-11/12 mx-auto py-4 flex flex-col gap-y-4'>
+                    <div className='md:hidden bg-background shadow-lg'>
+                        <div className='w-11/12 mx-auto py-4 flex flex-col gap-y-2'>
                             {NavbarTabs.map((item) => (
                                 <Link
                                     href={item.path}
                                     key={item.id}
-                                    className={`${pathname === item.path
-                                        ? 'text-primary font-semibold'
-                                        : 'text-gray-700 dark:text-gray-300'
-                                        } py-2`}
+                                    className={`px-4 py-2.5 rounded-lg text-sm font-medium ${pathname === item.path
+                                        ? 'bg-primary/10 text-primary'
+                                        : 'text-foreground/80 hover:bg-accent'
+                                        }`}
                                     onClick={() => setIsMobileMenuOpen(false)}
                                 >
                                     {item.title}
                                 </Link>
                             ))}
 
-                            <div className='flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700'>
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={toggleDarkMode}
-                                    className='text-gray-700 dark:text-gray-300'
-                                >
-                                    {isDarkMode ? (
-                                        <div className='flex items-center gap-x-2'>
-                                            <Sun size={16} />
-                                            <span>Light Mode</span>
-                                        </div>
+                            <div className='pt-4 mt-2 border-t border-border'>
+                                <div className='flex flex-col gap-y-2'>
+                                    <Button
+                                        variant="ghost"
+                                        className='justify-start text-foreground/80 hover:text-foreground'
+                                        onClick={() => {
+                                            router.push('/groups/my-interest');
+                                            setIsMobileMenuOpen(false);
+                                        }}
+                                    >
+                                        <Search size={16} className='mr-2' />
+                                        Search
+                                    </Button>
+
+                                    <Button
+                                        variant="ghost"
+                                        className='justify-start text-foreground/80 hover:text-foreground'
+                                        onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                                    >
+                                        {theme === 'dark' ? (
+                                            <Sun size={16} className='mr-2' />
+                                        ) : (
+                                            <Moon size={16} className='mr-2' />
+                                        )}
+                                        {theme === 'dark' ? 'Light Theme' : 'Dark Theme'}
+                                    </Button>
+
+                                    {!isSignedIn ? (
+                                        <>
+                                            <Button
+                                                variant="outline"
+                                                className='mt-2'
+                                                onClick={() => {
+                                                    router.push("/sign-in");
+                                                    setIsMobileMenuOpen(false);
+                                                }}
+                                            >
+                                                Sign In
+                                            </Button>
+                                            <Button
+                                                className='bg-primary hover:bg-primary/90'
+                                                onClick={() => {
+                                                    router.push("/sign-up");
+                                                    setIsMobileMenuOpen(false);
+                                                }}
+                                            >
+                                                Get Started
+                                            </Button>
+                                        </>
                                     ) : (
-                                        <div className='flex items-center gap-x-2'>
-                                            <Moon size={16} />
-                                            <span>Dark Mode</span>
-                                        </div>
+                                        <>
+                                            <Button
+                                                className='bg-primary hover:bg-primary/90'
+                                                onClick={() => {
+                                                    router.push("/groups");
+                                                    setIsMobileMenuOpen(false);
+                                                }}
+                                            >
+                                                Dashboard
+                                            </Button>
+                                            <div className='flex items-center justify-between pt-4'>
+                                                <span className='text-sm text-foreground/80'>Account</span>
+                                                <UserButton />
+                                            </div>
+                                        </>
                                     )}
-                                </Button>
-
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => router.push('/search')}
-                                    className='text-gray-700 dark:text-gray-300'
-                                >
-                                    <div className='flex items-center gap-x-2'>
-                                        <Search size={16} />
-                                        <span>Search</span>
-                                    </div>
-                                </Button>
+                                </div>
                             </div>
-
-                            {!isSignedIn && (
-                                <div className='flex flex-col gap-y-2 pt-4 border-t border-gray-200 dark:border-gray-700'>
-                                    <Button
-                                        variant="outline"
-                                        onClick={() => {
-                                            router.push("/sign-in");
-                                            setIsMobileMenuOpen(false);
-                                        }}
-                                        className='border-primary text-primary hover:bg-primary/10 w-full'
-                                    >
-                                        Sign In
-                                    </Button>
-                                    <Button
-                                        onClick={() => {
-                                            router.push("/sign-up");
-                                            setIsMobileMenuOpen(false);
-                                        }}
-                                        className='bg-primary hover:bg-primary/90 w-full'
-                                    >
-                                        Sign Up
-                                    </Button>
-                                </div>
-                            )}
-
-                            {isSignedIn && (
-                                <div className='flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-700'>
-                                    <Button
-                                        className='px-4 py-2 bg-primary hover:bg-primary/90'
-                                        onClick={() => {
-                                            router.push("/groups");
-                                            setIsMobileMenuOpen(false);
-                                        }}
-                                    >
-                                        Dashboard
-                                    </Button>
-                                    <UserButton />
-                                </div>
-                            )}
                         </div>
                     </div>
                 )}
             </nav>
-            {/* Spacer to prevent content from being hidden behind the fixed navbar */}
             <div className="h-16"></div>
         </>
     )

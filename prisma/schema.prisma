@@ -104,3 +104,11 @@ model Meeting {
     createdAt   DateTime @default(now())
     group       Group    @relation(fields: [groupId], references: [id])
 }
+
+model Contact {
+    id      String @id @default(uuid())
+    name    String
+    email   String
+    subject String
+    message String
+}
