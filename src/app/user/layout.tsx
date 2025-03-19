@@ -20,6 +20,7 @@ const SidebarLayout = (props: Props) => {
 
     return (
         <SidebarProvider
+            open={open} onOpenChange={setOpen}
             className='flex h-screen w-full'
         >
             <div
