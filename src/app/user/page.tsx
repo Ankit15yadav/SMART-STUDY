@@ -28,13 +28,13 @@ const Dashboard = [
     },
     {
         label: "All Groups",
-        href: "/groups/my-interest",
+        href: "/user/groups/my-interest",
 
         icon: <Group size={20} />
     },
     {
         label: "Create Group",
-        href: "/groups/create",
+        href: "/user/groups/create",
         icon: <PlusCircle size={20} />
     },
     {
