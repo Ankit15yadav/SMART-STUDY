@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { Dancing_Script } from "next/font/google"
-import { data } from "../../../../../../public/assets/interests/data"
+import { data } from "../../../../../public/assets/interests/data"
 import InterestsCard from '@/components/interests'
 import { Button } from '@/components/ui/button'
 import { ArrowRight, BookOpen, Code, Database, Laptop, Loader2, Microscope, Server } from 'lucide-react'

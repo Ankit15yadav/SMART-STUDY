@@ -1,6 +1,5 @@
 'use client'
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
-import { UserButton } from '@clerk/nextjs'
 import React, { useState } from 'react'
 import AppSidebar from './page'
 

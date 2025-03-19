@@ -16,13 +16,13 @@ const Dashboard = [
     {
         label: "My Chats",
         // href: "/groups/joined",
-        href: "/groups/chat",
+        href: "/user/groups/chat",
 
         icon: <MessageSquare size={20} />
     },
     {
         label: "Created Groups",
-        href: "/groups/my-groups",
+        href: "/user/groups/my-groups",
 
         icon: <Users size={20} />
     },
@@ -39,13 +39,13 @@ const Dashboard = [
     },
     {
         label: "Resume Upload",
-        href: "/groups/resume-upload",
+        href: "/user/groups/resume-upload",
         icon: <FileUser size={20} />
     },
     {
         label: "Interests",
         // href: "/interests",
-        href: "/groups/interest",
+        href: "/user/groups/interest",
 
         icon: <Heart size={20} />
     },
@@ -53,7 +53,7 @@ const Dashboard = [
     {
         label: "Settings",
         // href: "/groups/settings",
-        href: "/groups/settings",
+        href: "/user/groups/settings",
 
         icon: <Settings size={20} />
     },

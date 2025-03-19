@@ -8,7 +8,6 @@ import { TRPCReactProvider } from "@/trpc/react";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "sonner";
 import { SocketProvider } from "@/context/SocketProvider";
-import Navbar from "@/components/globals/navbar";
 
 export const metadata: Metadata = {
   title: "Smart Study",

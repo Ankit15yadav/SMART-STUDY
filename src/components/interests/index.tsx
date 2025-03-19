@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import { Check, Plus } from 'lucide-react'
-import { datainterst } from "../../app/(protected)/interests/page"
+import { datainterst } from "../../app/interests/page"
 
 type Props = {
     title: string

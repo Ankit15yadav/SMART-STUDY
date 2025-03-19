@@ -148,7 +148,7 @@ const Navbar = () => {
 
                                 <Button
                                     className='px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 transition-colors font-medium'
-                                    onClick={() => router.push("/groups")}
+                                    onClick={() => router.push("/user/groups")}
                                 >
                                     Dashboard
                                 </Button>
