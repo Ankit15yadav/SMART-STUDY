@@ -29,12 +29,12 @@ const NavbarTabs = [
     {
         id: "3",
         title: "Interets",
-        path: "/groups/interest"
+        path: "/user/groups/interest"
     },
     {
         id: "4",
         title: "Resume Assitant",
-        path: "/groups/resume-upload"
+        path: "/user/groups/resume-upload"
     }
 ]
 
