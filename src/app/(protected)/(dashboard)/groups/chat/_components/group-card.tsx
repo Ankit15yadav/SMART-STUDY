@@ -16,7 +16,7 @@ interface GroupChatCardProps {
     selectedGroupid: string,
     messages: Message[],
     isLoading?: boolean,
-    lastMessageByGroup?: { [groupId: string]: Message } // New prop to track last message per group
+    lastMessageByGroup?: { [groupId: string]: Message }
 }
 
 interface Message {
@@ -68,7 +68,7 @@ const GroupChatCard = ({
         try {
             return formatDistanceToNow(new Date(date), { addSuffix: true });
         } catch (error) {
-            return '';
+            console.log(error);
         }
     }
 

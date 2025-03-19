@@ -21,7 +21,7 @@ interface Group {
 
 const ChatPage = () => {
     const { user } = useUser();
-    const userId = user?.id || "";
+    const userId = user?.id;
 
     const { data: getJoinedGroups, isLoading: isGroupsLoading } = api.Groups.getJoinedGroups.useQuery(undefined, {
         staleTime: 1000 * 60 * 60 * 24,
@@ -88,7 +88,7 @@ const ChatPage = () => {
     const handleJoinGroup = (group: Group) => {
         setIsJoiningGroup(true);
         setSelectedGroup(group);
-        joinGroup(group.id, userId);
+        joinGroup(group.id, userId!);
         // Simulate loading time for joining a group
         setTimeout(() => {
             setIsJoiningGroup(false);
