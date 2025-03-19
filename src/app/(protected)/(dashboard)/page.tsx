@@ -8,7 +8,8 @@ import { MessageSquare, Users, PlusCircle, Settings, Heart, Group, FileUser } fr
 import Image from 'next/image'
 import { useRouter } from "next/navigation"
 import { Button } from '@/components/ui/button'
-
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
+import { Dialog, DialogTitle } from '@/components/ui/dialog'
 type Props = {}
 
 const Dashboard = [
@@ -67,8 +68,18 @@ const AppSidebar = (props: Props) => {
     // const 
 
     return (
-        <Sidebar collapsible='icon' variant='floating'>
+        <Sidebar collapsible='icon' variant='floating'
+            className="bg-white dark:bg-neutral-900 min-h-screen"
+        >
+
+
             <SidebarHeader className='flex items-center cursor-pointer'>
+                <Dialog>
+                    <DialogTitle className='sr-only'>
+                        Main navigation
+                    </DialogTitle>
+                </Dialog>
+
                 <Image
                     src={"/assets/images/logo.png"}
                     alt='logo'
@@ -77,7 +88,7 @@ const AppSidebar = (props: Props) => {
                     onClick={() => router.replace("/u/home")}
                 />
             </SidebarHeader>
-            <SidebarContent>
+            <SidebarContent className='bg-inherit'>
                 <SidebarGroup>
                     <SidebarGroupLabel>
                         Dashboard
@@ -105,7 +116,7 @@ const AppSidebar = (props: Props) => {
                     </SidebarGroupContent>
                 </SidebarGroup>
             </SidebarContent>
-            <SidebarFooter >
+            <SidebarFooter className='bg-inherit'>
                 <Button asChild>
                     <Link href={'/groups/create'}>
                         {

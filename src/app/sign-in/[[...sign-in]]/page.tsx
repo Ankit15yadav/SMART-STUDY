@@ -49,7 +49,7 @@ export default function SignInPage() {
 
             if (result.status === "complete") {
                 await setActive({ session: result.createdSessionId })
-                router.push("/dashboard")
+                router.push("/u/home")
             } else {
                 console.log("Additional verification needed:", result)
                 toast.error("Verification Required", {

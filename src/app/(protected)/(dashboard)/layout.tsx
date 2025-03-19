@@ -29,6 +29,9 @@ const SidebarLayout = (props: Props) => {
                 onMouseLeave={handleMouseLeave} // Collapse sidebar on leave
             >
                 <AppSidebar />
+                <main>
+                    <SidebarTrigger />
+                </main>
             </div>
 
             <main className="w-full ">

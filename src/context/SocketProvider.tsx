@@ -75,10 +75,6 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     useEffect(() => {
         const _socket = io("http://localhost:8000");
 
-        _socket.on('connect_error', (err) => {
-            console.log('Connection error:', err);
-        });
-
         _socket.on('message', onMessageReceived);
         _socket.on("previousMessages", (messages) => {
             setMessages(messages)

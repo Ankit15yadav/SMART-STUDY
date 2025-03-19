@@ -104,7 +104,7 @@ const AboutPage = () => {
         {
             name: "Parth Bansal",
             role: "Co-Founder & CTO",
-            image: "/assets/images/bansal_pra.jpg",
+            image: "/assets/images/bansal-1.jpg",
             bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.",
             social: {
                 linkedin: "#",
@@ -491,7 +491,7 @@ const AboutPage = () => {
                                 className="flex flex-col md:flex-row gap-8 items-center md:items-start bg-background p-8 rounded-xl shadow-sm border border-border/50"
                             >
                                 <div className="relative h-48 w-48 rounded-full overflow-hidden flex-shrink-0">
-                                    <Image src={member.image || "/placeholder.svg"} alt={member.name} fill className="object-cover" />
+                                    <Image src={member.image || "/placeholder.svg"} alt={member.name} fill className="object-cover " />
                                 </div>
                                 <div className="flex-1 text-center md:text-left">
                                     <h3 className="text-2xl font-bold">{member.name}</h3>
