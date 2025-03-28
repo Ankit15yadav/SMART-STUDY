@@ -1,7 +1,7 @@
 'use client'
 import React, { useState } from 'react'
 import { Button } from "@/components/ui/button"
-import { BookOpen, Briefcase, Calendar, CheckCircle, DoorOpen, FileText, Globe, Lock, MessageSquare, Rocket, Send, Star, UploadCloud, User, Users, X } from "lucide-react"
+import { CheckCircle, DoorOpen, FileText, Globe, Lock, MessageSquare, Rocket, Send, Star, UploadCloud, User, Users, X } from "lucide-react"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog"
 import { Label } from "../ui/label"
 import { Input } from "../ui/input"
@@ -85,7 +85,6 @@ const DialogOpen = ({ group }: GroupCardProps) => {
 
         }
 
-        // router.push("/groups/chat")
     }
 
     const handlePublicGroupJoin = async (groupdId: string) => {

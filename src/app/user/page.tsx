@@ -33,11 +33,6 @@ const Dashboard = [
         icon: <Group size={20} />
     },
     {
-        label: "Create Group",
-        href: "/user/groups/create",
-        icon: <PlusCircle size={20} />
-    },
-    {
         label: "Resume Upload",
         href: "/user/groups/resume-upload",
         icon: <FileUser size={20} />
@@ -74,12 +69,6 @@ const AppSidebar = (props: Props) => {
 
 
             <SidebarHeader className='flex items-center cursor-pointer'>
-                <Dialog>
-                    <DialogTitle className='sr-only'>
-                        Main navigation
-                    </DialogTitle>
-                </Dialog>
-
                 <Image
                     src={"/assets/images/logo.png"}
                     alt='logo'
@@ -117,15 +106,15 @@ const AppSidebar = (props: Props) => {
                 </SidebarGroup>
             </SidebarContent>
             <SidebarFooter className='bg-inherit'>
-                <Button asChild>
-                    <Link href={'/groups/create'}>
+                <Button asChild >
+                    <Link href={'/user/groups/create'}>
                         {
                             open ? ('Create Group') : ('+')
                         }
                     </Link>
                 </Button>
             </SidebarFooter>
-        </Sidebar>
+        </Sidebar >
     )
 }
 

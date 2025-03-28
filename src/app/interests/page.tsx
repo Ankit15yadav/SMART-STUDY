@@ -32,7 +32,7 @@ const Interests = () => {
                 onSuccess: () => {
                     toast.success('Interests added successfully')
                     setIsLoading(false)
-                    router.push("/groups/my-interest")
+                    router.push("/user/groups/my-interest")
                 },
                 onError: (error) => {
                     console.log(error);

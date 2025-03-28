@@ -34,7 +34,7 @@ const NavbarTabs = [
     {
         id: "4",
         title: "Resume Assitant",
-        path: "/user/groups/resume-upload"
+        path: "/resume-assistant/chat"
     }
 ]
 

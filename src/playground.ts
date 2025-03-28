@@ -430,42 +430,78 @@
 
 
 
-/** @type {import("eslint").Linter.Config} */
-const config = {
-    "parser": "@typescript-eslint/parser",
-    "parserOptions": {
-        "project": true
-    },
-    "extends": [
-        "next/core-web-vitals",
-        "plugin:@typescript-eslint/recommended-type-checked",
-        "plugin:@typescript-eslint/stylistic-type-checked"
-    ],
-    "rules": {
-        "@typescript-eslint/array-type": "off",
-        "@typescript-eslint/consistent-type-definitions": "off",
-        "@typescript-eslint/consistent-type-imports": [
-            "warn",
-            {
-                "prefer": "type-imports",
-                "fixStyle": "inline-type-imports"
-            }
-        ],
-        "@typescript-eslint/no-unused-vars": [
-            "warn",
-            {
-                "argsIgnorePattern": "^_"
-            }
-        ],
-        "@typescript-eslint/require-await": "off",
-        "@typescript-eslint/no-misused-promises": [
-            "error",
-            {
-                "checksVoidReturn": {
-                    "attributes": false
-                }
-            }
-        ]
+// /** @type {import("eslint").Linter.Config} */
+// const config = {
+//     "parser": "@typescript-eslint/parser",
+//     "parserOptions": {
+//         "project": true
+//     },
+//     "extends": [
+//         "next/core-web-vitals",
+//         "plugin:@typescript-eslint/recommended-type-checked",
+//         "plugin:@typescript-eslint/stylistic-type-checked"
+//     ],
+//     "rules": {
+//         "@typescript-eslint/array-type": "off",
+//         "@typescript-eslint/consistent-type-definitions": "off",
+//         "@typescript-eslint/consistent-type-imports": [
+//             "warn",
+//             {
+//                 "prefer": "type-imports",
+//                 "fixStyle": "inline-type-imports"
+//             }
+//         ],
+//         "@typescript-eslint/no-unused-vars": [
+//             "warn",
+//             {
+//                 "argsIgnorePattern": "^_"
+//             }
+//         ],
+//         "@typescript-eslint/require-await": "off",
+//         "@typescript-eslint/no-misused-promises": [
+//             "error",
+//             {
+//                 "checksVoidReturn": {
+//                     "attributes": false
+//                 }
+//             }
+//         ]
+//     }
+// }
+// module.exports = config;
+
+
+async function demo() {
+    const API_KEY = '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' // Store in .env
+
+    if (!API_KEY) {
+        console.error("API key is missing. Set OPENROUTER_API_KEY in environment variables.");
+        return;
+    }
+
+    try {
+        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${API_KEY}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                "model": "deepseek/deepseek-chat-v3-0324:free",
+                "messages": [{ "role": "user", "content": "What is the Leading web development framework" }]
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log(data?.choices[0]?.message);
+    } catch (error) {
+        console.error("Error:", error);
     }
 }
-module.exports = config;
+
+demo();
+
