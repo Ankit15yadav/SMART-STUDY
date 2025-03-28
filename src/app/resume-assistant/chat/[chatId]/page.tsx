@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea'
 import useRefetch from '@/hooks/use-refetch'
 import { api } from '@/trpc/react'
 import { UserButton } from '@clerk/nextjs'
-import { ArrowUp, ChevronDown, MessageCircleDashed, Plus, SquarePen } from 'lucide-react'
+import { ArrowUp, ChevronDown, MessageCircleDashed, Plus, PlusSquare, SquarePen } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import React, { useState, useEffect, useRef } from 'react'
 import { toast } from 'sonner'
@@ -60,6 +60,71 @@ const ChatPage = () => {
             prompt
     }
 
+    // Generate a comprehensive demo response with bullet points and code snippets
+    const generateDemoResponse = (prompt: string) => {
+        // Create base response that incorporates the user's prompt
+        let baseResponse = `# Comprehensive Analysis of\n\n`;
+
+        // Introduction
+        // baseResponse += `Thank you for your query about "${prompt}". Below is a detailed analysis of key considerations and recommendations for implementation.\n\n`;
+
+        // Key Considerations
+        baseResponse += `## Key Considerations for Implementation\n\n`;
+        baseResponse += "The following points are crucial for a successful implementation:\n\n";
+        baseResponse += "- **Integration with Existing Architecture**: Ensure seamless integration to minimize disruptions to current workflows.\n\n";
+        baseResponse += "- **Scalability**: Prioritize scalability to accommodate future growth and increasing data volumes.\n\n";
+        baseResponse += "- **Security**: Implement end-to-end encryption for all message transmissions.\n\n";
+        baseResponse += "- **Performance Optimization**: Optimize performance, particularly for the message chunking mechanism, to ensure a smooth user experience.\n\n";
+        baseResponse += "- **Cross-Platform Compatibility**: Ensure consistent functionality across different devices and browsers.\n\n";
+
+        // Recommended Implementation Approach
+        baseResponse += `## Recommended Implementation Approach\n\n`;
+        baseResponse += "To achieve a robust and efficient system, consider the following strategies:\n\n";
+        baseResponse += "- **Microservices Architecture**: Separate messaging functionality from other\n\n system components using a microservices architecture.\n\n";
+        baseResponse += "- **WebSocket Connections**: Use WebSocket connections for real-time message delivery \n\n instead of traditional HTTP requests.\n\n";
+        baseResponse += "- **Caching Layer**: Implement a caching layer to improve response times for frequently \n\naccessed message history.\n\n";
+        baseResponse += "- **Progressive Loading**: Consider implementing progressive loading patterns for message \n\nhistory to improve initial load times.\n\n";
+
+        // Code Implementation Example
+        baseResponse += `### Code Implementation Example\n\n`;
+        baseResponse += "Here's a JavaScript code example for a chunked message delivery system:\n\n";
+        // baseResponse += "
+        baseResponse += "// Message chunking implementation\n";
+        baseResponse += "class MessageChunker {\n";
+        baseResponse += "  constructor(message, chunkSize = 50, delayMs = 100) {\n";
+        baseResponse += "    this.message = message;\n";
+        baseResponse += "    this.chunkSize = chunkSize;\n";
+        baseResponse += "    this.delayMs = delayMs;\n";
+        baseResponse += "    this.chunks = this.prepareChunks();\n";
+        baseResponse += "  }\n\n";
+        baseResponse += "  prepareChunks() {\n";
+        baseResponse += "    const totalChunks = Math.ceil(this.message.length / this.chunkSize);\n";
+        baseResponse += "    const chunks = [];\n";
+        baseResponse += "    \n";
+        baseResponse += "    for (let i = 0; i < totalChunks; i++) {\n";
+        baseResponse += "      const start = i * this.chunkSize;\n";
+        baseResponse += "      const end = Math.min(start + this.chunkSize, this.message.length);\n";
+        baseResponse += "      chunks.push(this.message.substring(start, end));\n";
+        baseResponse += "    }\n";
+        baseResponse += "    \n";
+        baseResponse += "    return chunks;\n";
+        baseResponse += "  }\n\n";
+        baseResponse += "  async streamToUI(updateCallback) {\n";
+        baseResponse += "    let accumulatedText = '';\n";
+        baseResponse += "    \n";
+        baseResponse += "    for (const chunk of this.chunks) {\n";
+        baseResponse += "      await new Promise(resolve => setTimeout(resolve, this.delayMs));\n";
+        baseResponse += "      accumulatedText += chunk;\n";
+        baseResponse += "      updateCallback(accumulatedText);\n";
+        baseResponse += "    }\n";
+        baseResponse += "    \n";
+        baseResponse += "    return accumulatedText;\n";
+        baseResponse += "  }\n";
+        baseResponse += "}\n";
+        baseResponse += "```\n\n";
+
+        return baseResponse;
+    };
 
 
     // Updated function with chunked message handling
@@ -68,74 +133,74 @@ const ChatPage = () => {
         setPrompt('')
         setSave(true);
         const newPrompt = prompt;
-        // const fullResponse = generateDemoResponse(newPrompt);
+        const fullResponse = generateDemoResponse(newPrompt);
 
         // Create a temporary message ID for this conversation
-        // const tempMessageId = Date.now().toString();
+        const tempMessageId = Date.now().toString();
 
-        // // Initialize with empty response
-        // setLocalMessages(prev => [
-        //     ...prev,
-        //     { prompt: newPrompt, response: "", id: tempMessageId }
-        // ]);
+        // Initialize with empty response
+        setLocalMessages(prev => [
+            ...prev,
+            { prompt: newPrompt, response: "", id: tempMessageId }
+        ]);
 
-        // // Simulate chunked response by breaking the full response into pieces
-        // const chunkSize = 50; // Characters per chunk
-        // const totalChunks = Math.ceil(fullResponse.length / chunkSize);
+        // Simulate chunked response by breaking the full response into pieces
+        const chunkSize = 50; // Characters per chunk
+        const totalChunks = Math.ceil(fullResponse.length / chunkSize);
 
-        // try {
-        //     let accumulatedResponse = "";
+        try {
+            let accumulatedResponse = "";
 
-        //     // Process response in chunks
-        //     for (let i = 0; i < totalChunks; i++) {
-        //         const start = i * chunkSize;
-        //         const end = Math.min(start + chunkSize, fullResponse.length);
-        //         const chunk = fullResponse.substring(start, end);
+            // Process response in chunks
+            for (let i = 0; i < totalChunks; i++) {
+                const start = i * chunkSize;
+                const end = Math.min(start + chunkSize, fullResponse.length);
+                const chunk = fullResponse.substring(start, end);
 
-        //         // Add delay to simulate streaming
-        //         await new Promise(resolve => setTimeout(resolve, 100));
+                // Add delay to simulate streaming
+                await new Promise(resolve => setTimeout(resolve, 100));
 
-        //         // Update accumulated response
-        //         accumulatedResponse += chunk;
+                // Update accumulated response
+                accumulatedResponse += chunk;
 
-        //         // Update the message with the current accumulated response
-        //         setLocalMessages(prev =>
-        //             prev.map(msg =>
-        //                 msg.id === tempMessageId
-        //                     ? { ...msg, response: accumulatedResponse }
-        //                     : msg
-        //             )
-        //         );
-        //     }
+                // Update the message with the current accumulated response
+                setLocalMessages(prev =>
+                    prev.map(msg =>
+                        msg.id === tempMessageId
+                            ? { ...msg, response: accumulatedResponse }
+                            : msg
+                    )
+                );
+            }
 
-        //     // Once all chunks are processed, save to database
-        //     if (chatPresent) {
-        //         await createGroup.mutateAsync({
-        //             chatId: chatId,
-        //             prompt: newPrompt,
-        //             response: fullResponse
-        //         }, {
-        //             onSuccess: () => {
-        //                 refetch();
-        //             }
-        //         });
-        //     } else {
-        //         await createGroup.mutateAsync({
-        //             chatId: chatId,
-        //             prompt: newPrompt,
-        //             response: fullResponse,
-        //             title: generateTitle(newPrompt)
-        //         }, {
-        //             onSuccess: () => {
-        //                 refetch();
-        //             }
-        //         });
-        //     }
-        // } catch (error) {
-        //     // Rollback local messages on error
-        //     setLocalMessages(prev => prev.filter(msg => msg.id !== tempMessageId));
-        //     toast.error("Failed to send message");
-        // }
+            // Once all chunks are processed, save to database
+            if (chatPresent) {
+                await createGroup.mutateAsync({
+                    chatId: chatId,
+                    prompt: newPrompt,
+                    response: fullResponse
+                }, {
+                    onSuccess: () => {
+                        refetch();
+                    }
+                });
+            } else {
+                await createGroup.mutateAsync({
+                    chatId: chatId,
+                    prompt: newPrompt,
+                    response: fullResponse,
+                    title: generateTitle(newPrompt)
+                }, {
+                    onSuccess: () => {
+                        refetch();
+                    }
+                });
+            }
+        } catch (error) {
+            // Rollback local messages on error
+            setLocalMessages(prev => prev.filter(msg => msg.id !== tempMessageId));
+            toast.error("Failed to send message");
+        }
 
     };
 
@@ -148,11 +213,13 @@ const ChatPage = () => {
     return (
         <div className='h-screen flex flex-col overflow-x-hidden'>
             {/* Header remains unchanged */}
-            <div className='sticky min-h-20 px-4 flex border border-b-gray-400 rounded-b-3xl items-center justify-between'>
+            <div className='sticky min-h-10 p-3.5 flex  rounded-b-3xl items-center justify-between'>
                 <div className='flex gap-x-2'>
                     {!open && (
-                        <div className='flex items-center gap-x-1'>
-                            <SidebarTrigger />
+                        <div className='flex items-center gap-x-3'>
+                            <SidebarTrigger>
+
+                            </SidebarTrigger>
                             <span className='hover:cursor-pointer' onClick={handleChatCreation}>
                                 <SquarePen size={20} />
                             </span>

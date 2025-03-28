@@ -1,5 +1,9 @@
-'use client'
+'use client';
 
+import React, { useState } from 'react';
+import Link from 'next/link';
+import { cn } from '@/lib/utils';
+import { Loader2, SquarePen } from 'lucide-react';
 import {
     Sidebar,
     SidebarContent,
@@ -12,41 +16,51 @@ import {
     SidebarMenuItem,
     SidebarTrigger,
     useSidebar
-} from '@/components/ui/sidebar'
+} from '@/components/ui/sidebar';
 import {
     Tooltip,
     TooltipContent,
     TooltipProvider,
     TooltipTrigger
-} from '@/components/ui/tooltip'
-import { cn } from '@/lib/utils'
-import { api } from '@/trpc/react'
-import { SquarePen, Loader2 } from 'lucide-react'
-import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
-import React from 'react'
+} from '@/components/ui/tooltip';
+import { api } from '@/trpc/react';
+import { usePathname, useRouter } from 'next/navigation';
+import TypingText from '@/components/typing-text';
 
-const AppSidebar = () => {
-    const { data: History, isLoading } = api.chat.getHistory.useQuery();
+interface ChatHistoryItem {
+    id: string;
+    title: string | null;
+    ResumeMessage: {
+        id: string;
+        prompt: string;
+        response: string;
+    }[];
+}
+
+const AppSidebar: React.FC = () => {
+    // State for chat history and new chat id
+    const { data: History, isLoading } = api.chat.getHistory.useQuery<ChatHistoryItem[]>();
     const { open, toggleSidebar } = useSidebar();
-    const pathname = usePathname()
+    const pathname = usePathname();
     const router = useRouter();
+    const [newChatId, setNewChatId] = useState<string | null>(null);
 
     const handleChatCreation = () => {
         const uuid = crypto.randomUUID();
-        router.push(`/resume-assistant/chat/${uuid}`)
-    }
+        setNewChatId(uuid);
+        router.push(`/resume-assistant/chat/${uuid}`);
+    };
 
     return (
         <TooltipProvider>
-            <Sidebar className='min-h-screen'>
+            <Sidebar className="min-h-screen">
                 <SidebarHeader>
-                    {open && (
-                        <div className='flex items-center justify-between p-2'>
+                    {open ? (
+                        <div className="flex items-center justify-between p-2">
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <div>
-                                        <SidebarTrigger size={'lg'} onClick={toggleSidebar} />
+                                        <SidebarTrigger size={'icon'} onClick={toggleSidebar} />
                                     </div>
                                 </TooltipTrigger>
                                 <TooltipContent>
@@ -56,10 +70,7 @@ const AppSidebar = () => {
 
                             <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <span
-                                        className='hover:cursor-pointer'
-                                        onClick={handleChatCreation}
-                                    >
+                                    <span className="hover:cursor-pointer" onClick={handleChatCreation}>
                                         <SquarePen size={20} />
                                     </span>
                                 </TooltipTrigger>
@@ -68,9 +79,8 @@ const AppSidebar = () => {
                                 </TooltipContent>
                             </Tooltip>
                         </div>
-                    )}
-                    {!open && (
-                        <div className='p-2'>
+                    ) : (
+                        <div className="p-2">
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <div>
@@ -86,9 +96,7 @@ const AppSidebar = () => {
                 </SidebarHeader>
                 <SidebarContent>
                     <SidebarGroup>
-                        <SidebarGroupLabel>
-                            History
-                        </SidebarGroupLabel>
+                        <SidebarGroupLabel>History</SidebarGroupLabel>
                         <SidebarGroupContent>
                             {isLoading ? (
                                 <div className="flex items-center justify-center h-24">
@@ -96,16 +104,25 @@ const AppSidebar = () => {
                                 </div>
                             ) : (
                                 <SidebarMenu>
-                                    {History?.map((item, index) => (
+                                    {History?.map((item: ChatHistoryItem, index: number) => (
                                         <SidebarMenuItem key={index}>
                                             <SidebarMenuButton asChild>
                                                 <Link
-                                                    className={cn({
-                                                        '!bg-primary !text-white': pathname === `/resume-assistant/chat/${item.id}`
-                                                    }, 'list-none')}
                                                     href={`/resume-assistant/chat/${item.id}`}
+                                                    className={cn(
+                                                        { '!bg-primary !text-white': pathname === `/resume-assistant/chat/${item.id}` },
+                                                        'list-none'
+                                                    )}
                                                 >
-                                                    {item.title}
+                                                    {item.id === newChatId ? (
+                                                        <TypingText
+                                                            text={item.title!}
+                                                            speed={50}
+                                                            onComplete={() => setNewChatId(null)}
+                                                        />
+                                                    ) : (
+                                                        <span>{item.title}</span>
+                                                    )}
                                                 </Link>
                                             </SidebarMenuButton>
                                         </SidebarMenuItem>
@@ -117,7 +134,7 @@ const AppSidebar = () => {
                 </SidebarContent>
             </Sidebar>
         </TooltipProvider>
-    )
-}
+    );
+};
 
-export default AppSidebar
+export default AppSidebar;
