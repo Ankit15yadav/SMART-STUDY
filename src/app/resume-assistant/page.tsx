@@ -53,6 +53,7 @@ const AppSidebar: React.FC = () => {
 
     return (
         <TooltipProvider>
+            {/* Remove hard-coded colors to let the default theme take over */}
             <Sidebar className="min-h-screen">
                 <SidebarHeader>
                     {open ? (
@@ -100,20 +101,23 @@ const AppSidebar: React.FC = () => {
                         <SidebarGroupContent>
                             {isLoading ? (
                                 <div className="flex items-center justify-center h-24">
-                                    <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                                    <Loader2 className="w-6 h-6 animate-spin" />
                                 </div>
                             ) : (
                                 <SidebarMenu>
                                     {History?.map((item: ChatHistoryItem, index: number) => (
                                         <SidebarMenuItem key={index}>
-                                            <SidebarMenuButton asChild>
-                                                <Link
-                                                    href={`/resume-assistant/chat/${item.id}`}
-                                                    className={cn(
-                                                        { '!bg-primary !text-white': pathname === `/resume-assistant/chat/${item.id}` },
-                                                        'list-none'
-                                                    )}
-                                                >
+                                            <SidebarMenuButton
+                                                asChild
+                                                className={cn(
+                                                    // When the route is active, use the primary color and its foreground text
+                                                    pathname === `/resume-assistant/chat/${item.id}`
+                                                        ? 'bg-primary text-primary-foreground'
+                                                        : 'hover:bg-muted',
+                                                    'text-sm'
+                                                )}
+                                            >
+                                                <Link href={`/resume-assistant/chat/${item.id}`} className="list-none">
                                                     {item.id === newChatId ? (
                                                         <TypingText
                                                             text={item.title!}

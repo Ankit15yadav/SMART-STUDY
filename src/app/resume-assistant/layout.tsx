@@ -19,7 +19,7 @@ const SidebarLayout = ({ children }: Props) => {
 
 const SidebarContent = ({ children }: { children: React.ReactNode }) => {
     return (
-        <div className="flex h-screen w-full overflow-x-hidden">
+        <div className="flex h-screen w-full overflow-x-hidden ">
             <div>
                 <AppSidebar />
             </div>

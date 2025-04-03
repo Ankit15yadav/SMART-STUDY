@@ -11,6 +11,7 @@ import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import useRefetch from '@/hooks/use-refetch'
 
 const dancingScript = Dancing_Script({ subsets: ['latin'], weight: '400' })
 
@@ -24,6 +25,7 @@ const Interests = () => {
     const createInterest = api.interest.insertInterest.useMutation()
     const [isloading, setIsLoading] = useState(false)
     const router = useRouter();
+    const refetch = useRefetch();
 
     const handleInterest = () => {
         setIsLoading(true)
@@ -32,7 +34,8 @@ const Interests = () => {
                 onSuccess: () => {
                     toast.success('Interests added successfully')
                     setIsLoading(false)
-                    router.push("/groups/my-interest")
+                    router.push("/user/groups/my-interest")
+                    refetch();
                 },
                 onError: (error) => {
                     console.log(error);

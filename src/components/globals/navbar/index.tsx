@@ -33,9 +33,10 @@ const NavbarTabs = [
     },
     {
         id: "4",
-        title: "Resume Assitant",
+        title: "Resume",
         path: "/resume-assistant/chat"
-    }
+    },
+
 ]
 
 const Navbar = () => {
@@ -74,11 +75,11 @@ const Navbar = () => {
                     </div>
 
                     {/* Desktop navigation */}
-                    <div className='hidden md:flex gap-x-8'>
-                        {NavbarTabs.map((item) => (
+                    <div className='hidden md:flex gap-x-8 items-center justify-center'>
+                        {NavbarTabs.map((item, index) => (
                             <Link
                                 href={item.path}
-                                key={item.id}
+                                key={index}
                                 className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${pathname === item.path
                                     ? 'bg-primary/10 text-primary font-semibold'
                                     : 'text-foreground/80 hover:bg-accent hover:text-foreground'
@@ -87,6 +88,15 @@ const Navbar = () => {
                                 {item.title}
                             </Link>
                         ))}
+                        <div>
+                            <Button
+                                className='flex items-center text-sm justify-center text-foreground/80'
+                                variant={"ghost"}
+                                onClick={() => window.open("http://localhost:3000/dashboard")}
+                            >
+                                Repos
+                            </Button>
+                        </div>
                     </div>
 
                     {/* Desktop actions */}
@@ -148,7 +158,7 @@ const Navbar = () => {
 
                                 <Button
                                     className='px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 transition-colors font-medium'
-                                    onClick={() => router.push("/user/groups")}
+                                    onClick={() => router.push("/user/groups/chat")}
                                 >
                                     Dashboard
                                 </Button>

@@ -1,7 +1,7 @@
 'use client'
 import React, { useState } from 'react'
 import { Button } from "@/components/ui/button"
-import { CheckCircle, DoorOpen, FileText, Globe, Lock, MessageSquare, Rocket, Send, Star, UploadCloud, User, Users, X } from "lucide-react"
+import { CheckCircle, DoorOpen, FileText, Globe, Loader, Lock, MessageSquare, Rocket, Send, Star, UploadCloud, User, Users, X } from "lucide-react"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog"
 import { Label } from "../ui/label"
 import { Input } from "../ui/input"
@@ -72,7 +72,7 @@ const DialogOpen = ({ group }: GroupCardProps) => {
                     onSuccess: () => {
                         toast.success("Group Joined Successfully")
 
-                        router.push("/groups/chat")
+                        router.push("/user/groups/chat")
                         reftech()
                     },
                     onError: (error) => {
@@ -88,7 +88,16 @@ const DialogOpen = ({ group }: GroupCardProps) => {
     }
 
     const handlePublicGroupJoin = async (groupdId: string) => {
-        await joinGroup(groupdId);
+        try {
+            setIsLoading(true)
+            await joinGroup(groupdId);
+
+        } catch (error) {
+            console.log(error);
+        }
+        finally {
+            setIsLoading(false);
+        }
     }
 
     const handlePrivateGroupJoin = async (e: React.FormEvent) => {
@@ -199,9 +208,21 @@ const DialogOpen = ({ group }: GroupCardProps) => {
                                 variant="default"
                                 className="w-full bg-green-600 hover:bg-green-700"
                                 onClick={() => handlePublicGroupJoin(group.id)}
+                                disabled={isLoading}
                             >
-                                <CheckCircle className="w-5 h-5 mr-2" />
-                                Confirm Join
+                                {
+                                    isLoading ?
+                                        (<div className='flex items-center justify-center gap-x-2'>
+                                            <Loader className='animate-spin' />
+                                            Joining....
+                                        </div>)
+                                        :
+                                        (<div className='flex gap-x-2 items-center justify-center'>
+                                            <CheckCircle className="w-5 h-5 mr-2" />
+                                            Confirm Join
+                                        </div>)
+                                }
+
                             </Button>
                         </DialogFooter>
                     </div>
@@ -241,7 +262,7 @@ const DialogOpen = ({ group }: GroupCardProps) => {
                                                         size="sm"
                                                         asChild
                                                     >
-                                                        <Link href="/groups/resume-upload">
+                                                        <Link href="/user/groups/resume-upload">
                                                             Update Resume
                                                         </Link>
                                                     </Button>
@@ -261,7 +282,7 @@ const DialogOpen = ({ group }: GroupCardProps) => {
                                                     className="ml-auto"
                                                     asChild
                                                 >
-                                                    <Link href="/groups/resume-upload">
+                                                    <Link href="/user/groups/resume-upload">
                                                         Upload Resume
                                                     </Link>
                                                 </Button>

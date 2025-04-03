@@ -31,7 +31,6 @@ import SelectGroupForResume from "./_component/select-group-resume"
 import { FinalResponse } from "@/lib/deepseek/resume-chat"
 import MDEditor from "@uiw/react-md-editor"
 import { readStreamableValue } from "ai/rsc"
-import { Value } from "@radix-ui/react-select"
 
 const ResumeUploader = () => {
     const { data: interests } = api.Groups.getUserInterest.useQuery();
