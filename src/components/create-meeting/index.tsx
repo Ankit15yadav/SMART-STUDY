@@ -1,6 +1,7 @@
 // components/CreateMeetingButton.tsx
+'use client'
 import { useState } from 'react';
-import { useUser, useAuth } from '@clerk/nextjs';
+import { useUser } from '@clerk/nextjs';
 import { api } from '@/trpc/react';
 
 export const CreateMeetingButton = () => {
