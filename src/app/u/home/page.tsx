@@ -157,8 +157,8 @@ export default function HomePage() {
                             className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-3xl mx-auto"
                         >
                             {[
-                                { count: "10,000+", label: "Active Students" },
-                                { count: "500+", label: "Universities" },
+                                { count: "100+", label: "Active Students" },
+                                { count: "5+", label: "Universities" },
                                 { count: "2,500+", label: "Study Groups" },
                                 { count: "95%", label: "Success Rate" },
                             ].map((stat, index) => (
@@ -603,9 +603,9 @@ export default function HomePage() {
                                                 </div>
                                             </div>
                                             <div className="space-y-2">
-                                                <div className="h-3 w-full bg-gray-100 rounded-full"></div>
-                                                <div className="h-3 w-5/6 bg-gray-100 rounded-full"></div>
-                                                <div className="h-3 w-4/6 bg-gray-100 rounded-full"></div>
+                                                <div className="h-3 w-full bg-gray-100 rounded-full animate-pulse"></div>
+                                                <div className="h-3 w-5/6 bg-gray-100 rounded-full animate-pulse"></div>
+                                                <div className="h-3 w-4/6 bg-gray-100 rounded-full animate-pulse"></div>
                                             </div>
                                             <div className="mt-4 flex flex-wrap gap-2">
                                                 <div className="h-6 w-16 bg-gray-200 rounded-full"></div>
@@ -705,7 +705,7 @@ export default function HomePage() {
                                     whileInView={{ opacity: 1, y: 0 }}
                                     transition={{ duration: 0.6, delay: index * 0.2 }}
                                     viewport={{ once: true }}
-                                    className={`relative z-10 flex items-center gap-8 mb-16 ${index % 2 === 0 ? "flex-row" : "flex-row-reverse"
+                                    className={`relative  z-10 flex items-center gap-8 mb-16 ${index % 2 === 0 ? "flex-row" : "flex-row-reverse"
                                         }`}
                                 >
                                     <div className="hidden md:block w-1/2">{step.image}</div>

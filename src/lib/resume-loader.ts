@@ -3,7 +3,6 @@ import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import fs from "fs";
 import path from "path";
 import { AiBasedGroupJoining } from "./deepseek/demo-chat";
-import { doc } from "prettier";
 
 const localPdfPath = path.join("/tmp", "smart-study.pdf");
 
@@ -52,7 +51,9 @@ export async function parsePdfFromUrl(userResume: string) {
         return null;
     }
 
+    console.log(docs[0]?.pageContent);
+
     return docs[0]?.pageContent;
 }
 
-// await parsePdfFromUrl('https://res.cloudinary.com/dxlwayr30/image/upload/v1739779129/smart_study/f9cxrjabp2edzz7hbd7k.pdf');
+await parsePdfFromUrl('https://res.cloudinary.com/dxlwayr30/image/upload/v1739779129/smart_study/f9cxrjabp2edzz7hbd7k.pdf');

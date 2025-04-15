@@ -1,4 +1,3 @@
-'use client'
 import { CreateMeetingButton } from '@/components/create-meeting'
 import React from 'react'
 
