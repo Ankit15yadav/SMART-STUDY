@@ -9,6 +9,22 @@ import { Search } from "lucide-react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Dialog } from "@/components/ui/dialog"
+import GroupShowCard from "@/components/my-groups"
+
+type group = {
+    name: string;
+    id: string;
+    description: string;
+    imageUrl: string | null;
+    isPublic: boolean;
+    privateGroupInfo: string | null;
+    maxMembers: number;
+    category: string;
+    tags: string[];
+    members: {
+        userId: string
+    }[];
+}
 
 const MyGroups = () => {
     const { data: groups, isLoading } = api.Groups.getMyGroups.useQuery()
@@ -17,13 +33,18 @@ const MyGroups = () => {
 
     const router = useRouter();
 
+
     // Filter groups based on search query
     const filteredGroups = groups?.filter((group) => {
         const searchTerm = searchQuery.toLowerCase()
         return (
-            group.name.toLowerCase().includes(searchTerm) ||
-            group.description.toLowerCase().includes(searchTerm) ||
-            group.tags.some(tag => tag.toLowerCase().includes(searchTerm))
+            group.tags.length > 0 &&
+            (
+                group.name.toLowerCase().includes(searchTerm) ||
+                group.description.toLowerCase().includes(searchTerm) ||
+                group.tags.some(tag => tag.toLowerCase().includes(searchTerm))
+            )
+
         )
     })
 
@@ -55,7 +76,7 @@ const MyGroups = () => {
 
             {/* Groups content area */}
             <ScrollArea className="flex-grow">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
                     {isLoading ? (
                         // Show skeleton cards while loading
                         Array.from({ length: 3 }).map((_, index) => (
@@ -63,19 +84,14 @@ const MyGroups = () => {
                         ))
                     ) : filteredGroups && filteredGroups.length > 0 ? (
                         // Show filtered groups
-                        filteredGroups.map((group) => (
-                            <GroupCard
+                        filteredGroups.map((group: group) => (
+                            <GroupShowCard
                                 key={group.id}
-                                group={{
-                                    ...group,
-                                    imageUrl: group.imageUrl || "",
-                                    joinedMembers: group.members.length,
-                                }}
+                                group={group}
 
                             />
                         ))
                     ) : filteredGroups && filteredGroups.length === 0 ? (
-                        // No results found
                         <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
                             <Search className="h-12 w-12 text-muted-foreground mb-4" />
                             <h3 className="text-lg font-medium">No groups found</h3>
