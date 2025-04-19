@@ -1,5 +1,4 @@
 "use client"
-
 import { GroupCard } from "@/components/group-card"
 import { api } from "@/trpc/react"
 import MyGroupsSkeleton from "@/components/group-skeleton"

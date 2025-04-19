@@ -12,9 +12,9 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import useRefetch from '@/hooks/use-refetch';
 import { api } from '@/trpc/react'
 import { Edit, Ellipsis, Globe, Globe2, Loader, Plus, Trash } from 'lucide-react';
-import Image from 'next/image';
 import React, { ChangeEvent, useState } from 'react'
 import { toast } from 'sonner';
+import { motion } from "motion/react"
 
 type group = {
     name: string;
@@ -230,105 +230,119 @@ const GroupShowCard = ({ group }: { group: group }) => {
                         </div>
                     </DialogFooter>
                 </DialogContent>
-                <div className=''>
-                    <div >
-                        <Card className='h-fit min-w-[330px]  py-2 '>
-                            <CardContent className='flex justify-between items-center'>
-                                <div className='flex gap-x-2 items-center justify-center'>
-                                    <p className='text-xs border border-yellow-200 bg-yellow-50 text-yellow-500 w-fit px-2 py-2 rounded-sm'>
-                                        {group?.tags[0]}
-                                    </p>
+                <motion.div
+                    initial={{
+                        opacity: 0,
+                        scale: 0.98,
+                        filter: 'blur(10px)'
+                    }}
 
-                                    <div className='flex gap-x-1 items-center justify-center w-fit bg-slate-100 px-2 py-2 rounded-xl'>
-                                        <TooltipProvider >
-                                            <Tooltip>
-                                                <TooltipTrigger asChild >
-                                                    <div className='flex items-center justify-center '>
-                                                        <Plus size={12} />
+                    animate={{
+                        opacity: 1,
+                        scale: 1,
+                        filter: 'blur(0px)'
+                    }}
+                    transition={{
+                        duration: 0.5,
+                        ease: "linear"
+                    }}
+                >
+                    <Card className='h-fit min-w-[330px]  py-2 '>
+                        <CardContent className='flex justify-between items-center'>
+                            <div className='flex gap-x-2 items-center justify-center'>
+                                <p className='text-xs border border-yellow-200 bg-yellow-50 text-yellow-500 w-fit px-2 py-2 rounded-sm'>
+                                    {group?.tags[0]}
+                                </p>
 
-                                                        <p className='text-xs'>
-                                                            {group?.tags.length - 1}
+                                <div className='flex gap-x-1 items-center justify-center w-fit bg-slate-100 px-2 py-2 rounded-xl'>
+                                    <TooltipProvider >
+                                        <Tooltip>
+                                            <TooltipTrigger asChild >
+                                                <div className='flex items-center justify-center '>
+                                                    <Plus size={12} />
+
+                                                    <p className='text-xs'>
+                                                        {group?.tags.length - 1}
+                                                    </p>
+                                                </div>
+
+                                            </TooltipTrigger>
+
+                                            <TooltipContent className='bg-yellow-50 border border-yellow-300 text-yellow-500 '>
+
+                                                {
+                                                    group.tags?.slice(1)?.map((tag) => (
+                                                        <p key={tag}>
+                                                            {tag}
                                                         </p>
-                                                    </div>
+                                                    ))
+                                                }
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </TooltipProvider>
 
-                                                </TooltipTrigger>
-
-                                                <TooltipContent className='bg-yellow-50 border border-yellow-300 text-yellow-500 '>
-
-                                                    {
-                                                        group.tags?.slice(1)?.map((tag) => (
-                                                            <p key={tag}>
-                                                                {tag}
-                                                            </p>
-                                                        ))
-                                                    }
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        </TooltipProvider>
-
-                                    </div>
                                 </div>
-                                <div className='bg-slate-100 px-2 rounded-xl hover:cursor-pointer'>
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <Ellipsis />
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent className='w-20 '>
-                                            <DropdownMenuGroup>
-                                                <DialogTrigger asChild>
-                                                    <DropdownMenuItem className='flex items-center gap-2 hover:cursor-pointer'>
-                                                        <Edit size={16} />
-                                                        <span>Edit</span>
-                                                    </DropdownMenuItem>
-                                                </DialogTrigger>
-                                                <DropdownMenuSeparator />
-                                                <DropdownMenuItem className='hover:cursor-pointer hover:bg-red-300 text-red-400'>
-                                                    <Trash className='' />
-                                                    Delete
+                            </div>
+                            <div className='bg-slate-100 px-2 rounded-xl hover:cursor-pointer'>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Ellipsis />
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent className='w-20 '>
+                                        <DropdownMenuGroup>
+                                            <DialogTrigger asChild>
+                                                <DropdownMenuItem className='flex items-center gap-2 hover:cursor-pointer'>
+                                                    <Edit size={16} />
+                                                    <span>Edit</span>
                                                 </DropdownMenuItem>
-                                            </DropdownMenuGroup>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
+                                            </DialogTrigger>
+                                            <DropdownMenuSeparator />
+                                            <DropdownMenuItem className='hover:cursor-pointer hover:bg-red-300 text-red-400'>
+                                                <Trash className='' />
+                                                Delete
+                                            </DropdownMenuItem>
+                                        </DropdownMenuGroup>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            </div>
+                        </CardContent>
+                        <CardContent>
+                            <CardTitle className='text-sm font-semibold'>
+                                {group?.name}
+                            </CardTitle>
+                            <CardDescription>
+                                {group.description.split(" ").slice(0, 5).join(' ')} ...
+                            </CardDescription>
+                            <div className='flex items-center justify-between mt-4'>
+                                <div>
+                                    {group?.isPublic
+                                        ?
+                                        (
+                                            <div className='text-sm flex gap-x-1 items-center w-fit px-2 py-1 bg-green-100 rounded-xl text-green-700'>
+                                                <Globe size={15} />
+                                                public
+                                            </div>
+                                        )
+                                        :
+                                        (
+                                            <div className='text-sm flex gap-x-1 items-center w-fit px-2 py-1 bg-red-50 rounded-xl text-red-400'>
+                                                <Globe2 size={15} />
+                                                private
+                                            </div>
+                                        )}
                                 </div>
-                            </CardContent>
-                            <CardContent>
-                                <CardTitle className='text-sm font-semibold'>
-                                    {group?.name}
-                                </CardTitle>
-                                <CardDescription>
-                                    {group.description.split(" ").slice(0, 5).join(' ')} ...
-                                </CardDescription>
-                                <div className='flex items-center justify-between mt-4'>
-                                    <div>
-                                        {group?.isPublic
-                                            ?
-                                            (
-                                                <div className='text-sm flex gap-x-1 items-center w-fit px-2 py-1 bg-green-100 rounded-xl text-green-700'>
-                                                    <Globe size={15} />
-                                                    public
-                                                </div>
-                                            )
-                                            :
-                                            (
-                                                <div className='text-sm flex gap-x-1 items-center w-fit px-2 py-1 bg-red-50 rounded-xl text-red-400'>
-                                                    <Globe2 size={15} />
-                                                    private
-                                                </div>
-                                            )}
-                                    </div>
-                                    <div className='text-sm text-gray-800 w-fit bg-gray-100 px-3 py-1 rounded-lg'>
-                                        <p>
-                                            {group?.members.length} / {group?.maxMembers}
-                                        </p>
-                                    </div>
-
+                                <div className='text-sm text-gray-800 w-fit bg-gray-100 px-3 py-1 rounded-lg'>
+                                    <p>
+                                        {group?.members.length} / {group?.maxMembers}
+                                    </p>
                                 </div>
-                            </CardContent>
-                        </Card>
+
+                            </div>
+                        </CardContent>
+                    </Card>
 
 
-                    </div>
-                </div>
+                </motion.div>
             </Dialog>
 
         </>
