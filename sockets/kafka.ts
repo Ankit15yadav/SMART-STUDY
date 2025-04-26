@@ -84,7 +84,7 @@ export async function startMessageConsumer() {
                     }
                 });
 
-                console.log(`Message stored: ${messageData.content}`);
+                // console.log(`Message stored: ${messageData.content}`);
             } catch (error) {
                 console.error("Error processing message:", error);
                 pause(); // Pause consumer on error

@@ -1,9 +1,9 @@
 
 import http from "http"
-import { startMessageConsumer } from "sockets/kafka";
-import SocketService from "sockets/socket";
+import { startMessageConsumer } from "./sockets/kafka";
+import SocketService from "./sockets/socket";
 
-async function init() {
+export async function init() {
 
     startMessageConsumer();
     const socketService = new SocketService();
@@ -19,4 +19,4 @@ async function init() {
     socketService.initListeners();
 }
 
-init()
+init();
